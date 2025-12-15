@@ -7,7 +7,7 @@ docker-compose.override.yml
 *.local.yml
 
 # Laravel runtime/build
-memocrm-api/storage/
+memocrm-api/storage/*
 memocrm-api/bootstrap/cache/
 memocrm-api/public/build
 memocrm-api/public/hot
