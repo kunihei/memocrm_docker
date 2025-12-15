@@ -1,0 +1,13 @@
+### ベースの設定
+@baseURL = http://localhost:8080/api
+@headers = Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+
+### API疎通確認用
+GET {{baseURL}}/health
+{{headers}}
+
+emp_cd=1002
+&password=Pass1002
+&sec_key=5kURWy3PF5B9QX9HLbcjGhSsHmnAwsTtB2pArgTKwrjhdQnTBZ
+&os=1
+&version=1.0.0

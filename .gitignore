@@ -1,0 +1,28 @@
+.DS_Store
+# env / overrides
+.env
+.env.*
+!.env.example
+docker-compose.override.yml
+*.local.yml
+
+# Laravel runtime/build
+memocrm-api/storage/
+memocrm-api/bootstrap/cache/
+memocrm-api/public/build
+memocrm-api/public/hot
+memocrm-api/public/storage
+
+# Dependencies
+memocrm-api/node_modules/
+memocrm-api/vendor/
+
+# Docker runtime
+docker/**/logs/
+docker/**/tmp/
+
+# Editor/OS
+.idea/
+.vscode/
+*.swp
+*.orig
