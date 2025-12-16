@@ -9,7 +9,8 @@ docker-compose.override.yml
 # Laravel runtime/build
 memocrm-api/storage/*
 !memocrm-api/storage/.gitkeep
-memocrm-api/bootstrap/cache/
+memocrm-api/bootstrap/cache/*
+!memocrm-api/bootstrap/cache/.gitkeep
 memocrm-api/public/build
 memocrm-api/public/hot
 memocrm-api/public/storage

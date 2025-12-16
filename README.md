@@ -108,6 +108,8 @@ docker compose up -d --build
 ### 2. Laravel依存関係インストール
 ```bash
 docker compose exec app composer install
+or　
+docker compose run --rm app composer install
 ```
 
 ### 3. 環境変数ファイル作成

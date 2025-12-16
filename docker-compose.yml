@@ -39,7 +39,7 @@ services:
       MYSQL_PASSWORD: appass
       MYSQL_ROOT_PASSWORD: rootpass
     ports:
-      - "3307:3306"
+      - "127.0.0.1:3307:3306"
     volumes:
       - dbdata:/var/lib/mysql
 
