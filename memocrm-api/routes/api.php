@@ -6,8 +6,14 @@ Route::get('/health', fn () => ['ok' => true]);
 // Route::middleware('auth:sanctum')->group(function () {
 //     Route::get('/me', fn() => request()->user());
 // });
-Route::get('/me', [AuthController::class, 'me'])->middleware('auth:sanctum');
+Route::controller(AuthController::class)->group(function () {
+    // 公開ルート
+    Route::post('/login', 'login');
+    Route::post('/refresh', 'refresh');
 
-Route::post('/refresh', [AuthController::class, 'refresh']);
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+    // 認証が必要なルートを内部でまとめる（ミドルウェア重複を削減）
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', 'logout');
+        Route::get('/me', 'me');
+    });
+});

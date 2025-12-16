@@ -1,7 +1,7 @@
 ### ベースの設定
 @baseURL = http://localhost:8080/api
 @headers = Content-Type: application/x-www-form-urlencoded; charset=UTF-8
-@token = Authorization: Bearer 2|RfVMK5NwiaHqbWJohaVGIsribDaqmvShBFvEPLZO415e732a
+@token = Authorization: Bearer 1|usmZdUa0VIiHlT50med30VmmMZ3Fgj2t5IBHgYP0e7dc0aae
 
 ### ログイン用API
 POST {{baseURL}}/login
