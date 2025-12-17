@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\RefreshToken;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
@@ -45,7 +46,7 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'バリデーションエラー',
                 'errors' => $validated->errors(),
-            ]);
+            ], 422);
         }
         // バリデーションを通過した入力値を$dataに格納している
         $data = $validated->validated();
@@ -57,7 +58,7 @@ class AuthController extends Controller
         if (!$user || !Hash::check($data['password'], $user->password)) {
             return response()->json([
                 'error' => 'メールアドレスかパスワードが違います',
-            ]);
+            ], 422);
         }
 
         $tokenName = $data['device_name'] ?? 'mobile';
@@ -113,14 +114,14 @@ class AuthController extends Controller
     {
         $valid = validator($request->all(), [
             'refresh_token' => ['required', 'string'],
-            'device_name' => ['required', 'string'],
+            'device_name' => ['nullable', 'string'],
         ]);
 
         if ($valid->fails()) {
             return response()->json([
                 'message' => 'バリデーションエラー',
                 'errors' => $valid->errors(),
-            ]);
+            ], 422);
         }
 
         $data = $valid->validated();
@@ -128,56 +129,63 @@ class AuthController extends Controller
         $incomingHash = hash('sha256', $data['refresh_token']);
         $deviceName = $data['device_name'] ?? 'mobile';
 
-        return DB::transaction(function () use ($incomingHash, $deviceName, $request) {
-            $rt = RefreshToken::where('token_hash', $incomingHash)->lockForUpdate()->first();
+        try {
+            return DB::transaction(function () use ($incomingHash, $deviceName, $request) {
+                $rt = RefreshToken::where('token_hash', $incomingHash)->lockForUpdate()->first();
 
-            if (!$rt || !$rt->isActive()) {
-                return response()->json([
-                    'message' => '無効なリフレッシュトークンです',
+                if (!$rt || !$rt->isActive()) {
+                    return response()->json([
+                        'message' => '無効なリフレッシュトークンです',
+                    ], 422);
+                }
+                $user = $rt->user()->first();
+                if (!$user) {
+                    return response()->json([
+                        'message' => '無効なリフレッシュトークンです',
+                    ], 422);
+                }
+
+                $rt->revoked_time = Carbon::now();
+
+                $newRefreshPlain = Str::random(64);
+                $newRefreshHash = hash('sha256', $newRefreshPlain);
+                $newRefreshExpiresAt = Carbon::now()->addDays(self::REFRESH_TOKEN_DAYS);
+
+                $last = RefreshToken::orderByDesc('seq_cd')->lockForUpdate()->first();
+                $seqCd = ($last->seq_cd ?? 0) + 1;
+
+                RefreshToken::create([
+                    'seq_cd' => $seqCd,
+                    'user_id' => $user->getKey(),
+                    'token_hash' => $newRefreshHash,
+                    'device_name' => $deviceName,
+                    'user_agent' => substr((string)$request->userAgent(), 0, 2000),
+                    'ip_address' => $request->ip(),
+                    'expires_time' => $newRefreshExpiresAt,
                 ]);
-            }
-            $user = $rt->user()->first();
-            if (!$user) {
+
+                // 既存のリフレッシュトークンのデータでここに移動したことを既存データに残す
+                $rt->replaced_by_token_id = $seqCd;
+                // モデルが既存レコードなら UPDATE、未挿入なら INSERT を実行します（主キーの有無で判定）
+                $rt->save();
+
+                $accessExpiresAt = Carbon::now()->addMinutes(self::ACCESS_TOKEN_MINUTES);
+                $accessToken = $user->createToken($deviceName, ['*'], $accessExpiresAt)->plainTextToken;
+
                 return response()->json([
-                    'message' => '無効なリフレッシュトークンです',
-                ]);
-            }
-
-            $rt->revoked_time = now();
-
-            $newRefreshPlain = Str::random(64);
-            $newRefreshHash = hash('sha256', $newRefreshPlain);
-            $newRefreshExpiresAt = Carbon::now()->addDays(self::REFRESH_TOKEN_DAYS);
-
-            $last = RefreshToken::orderByDesc('seq_cd')->lockForUpdate()->first();
-            $seqCd = ($last->seq_cd ?? 0) + 1;
-
-            RefreshToken::create([
-                'seq_cd' => $seqCd,
-                'user_id' => $user->getKey(),
-                'token_hash' => $newRefreshHash,
-                'device_name' => $deviceName,
-                'user_agent' => substr((string)$request->userAgent(), 0, 2000),
-                'ip_address' => $request->ip(),
-                'expires_time' => $newRefreshExpiresAt,
-            ]);
-
-            // 既存のリフレッシュトークンのデータでここに移動したことを既存データに残す
-            $rt->replaced_by_token_id = $seqCd;
-            // モデルが既存レコードなら UPDATE、未挿入なら INSERT を実行します（主キーの有無で判定）
-            $rt->save();
-
-            $accessExpiresAt = Carbon::now()->addMinutes(self::ACCESS_TOKEN_MINUTES);
-            $accessToken = $user->createToken($deviceName, ['*'], $accessExpiresAt)->plainTextToken;
-
+                    'access_token' => $accessToken,
+                    'access_token_expires_at' => $accessExpiresAt->toIso8601String(),
+                    'refresh_token' => $newRefreshPlain,
+                    'refresh_token_expires_at' => $newRefreshExpiresAt->toIso8601String(),
+                    'token_type' => 'Bearer',
+                ], 200);
+            });
+        } catch (\Throwable $e) {
+            Log::error("運営会社に問い合わせてください", ['error' => $e->getMessage()]);
             return response()->json([
-                'access_token' => $accessToken,
-                'access_token_expires_at' => $accessExpiresAt->toIso8601String(),
-                'refresh_token' => $newRefreshPlain,
-                'refresh_token_expires_at' => $newRefreshExpiresAt->toIso8601String(),
-                'token_type' => 'Bearer',
-            ], 200);
-        });
+                'message' => '運営会社に問い合わせてください',
+            ], 500);
+        }
     }
 
     /**

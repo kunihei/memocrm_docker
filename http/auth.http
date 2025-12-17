@@ -34,7 +34,3 @@ email=admin@example.com
 GET {{baseURL}}/me
 {{access_token}}
 {{headers}}
-
-email=admin@example.com
-&password=password
-&device_name=iphone
