@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 
+use function Symfony\Component\Clock\now;
+
 class AuthController extends Controller
 {
 
@@ -60,7 +62,9 @@ class AuthController extends Controller
             $refreshHash = hash('sha256', $refreshPlain);
 
             $refreshExpiresAt = Carbon::now()->addDays(self::REFRESH_TOKEN_DAYS);
-            $refreshToken = RefreshToken::create([
+            $seqCd = RefreshToken::max('seq_cd') + 1;
+            RefreshToken::create([
+                'seq_cd' => $seqCd,
                 'user_id' => $user->getKey(),
                 'token_hash' => $refreshHash,
                 'device_name' => $tokenName,
@@ -73,6 +77,71 @@ class AuthController extends Controller
                 'access_token_expires_at' => $accessExpiresAt->toIso8601String(),
                 'refresh_token' => $refreshPlain,
                 'refresh_token_expires_at' => $refreshExpiresAt->toIso8601String(),
+                'token_type' => 'Bearer',
+            ], 200);
+        });
+    }
+
+    public function refresh(Request $request)
+    {
+        $valid = validator($request->all(), [
+            'refresh_token' => ['required', 'string'],
+            'device_name' => ['required', 'string'],
+        ]);
+
+        if ($valid->fails()) {
+            return response()->json([
+                'message' => 'バリデーションエラー',
+                'errors' => $valid->errors(),
+            ]);
+        }
+        $data = $valid->validated();
+
+        $incomingHash = hash('sha256', $data['refresh_token']);
+        $deviceName = $data['device_name'] ?? 'mobile';
+
+        return DB::transaction(function () use ($incomingHash, $deviceName, $request) {
+            $rt = RefreshToken::where('token_hash', $incomingHash)->lockForUpdate()->first();
+
+            if (!$rt || !$rt->isActive()) {
+                return response()->json([
+                    'message' => '無効なリフレッシュトークンです',
+                ]);
+            }
+            $user = $rt->user()->first();
+            if (!$user) {
+                return response()->json([
+                    'message' => '無効なリフレッシュトークンです',
+                ]);
+            }
+
+            $rt->revoked_time = now();
+            $newRefreshPlain = Str::random(64);
+            $newRefreshHash = hash('sha256', $newRefreshPlain);
+            $newRefreshExpiresAt = Carbon::now()->addDays(self::REFRESH_TOKEN_DAYS);
+            $last = RefreshToken::orderByDesc('seq_cd')->lockForUpdate()->first();
+            $seqCd = ($last->seq_cd ?? 0) + 1;
+
+            RefreshToken::create([
+                'seq_cd' => $seqCd,
+                'user_id' => $user->getKey(),
+                'token_hash' => $newRefreshHash,
+                'device_name' => $deviceName,
+                'user_agent' => substr((string)$request->userAgent(), 0, 2000),
+                'ip_address' => $request->ip(),
+                'expires_time' => $newRefreshExpiresAt,
+            ]);
+
+            $rt->replaced_by_token_id = $seqCd;
+            $rt->save();
+            $accessExpiresAt = Carbon::now()->addMinutes(self::ACCESS_TOKEN_MINUTES);
+            $accessToken = $user->createToken($deviceName, ['*'], $accessExpiresAt)->plainTextToken;
+
+            return response()->json([
+                'access_token' => $accessToken,
+                'access_token_expires_at' => $accessExpiresAt->toIso8601String(),
+                'refresh_token' => $newRefreshPlain,
+                'refresh_token_expires_at' => $newRefreshExpiresAt->toIso8601String(),
                 'token_type' => 'Bearer',
             ], 200);
         });
@@ -93,10 +162,11 @@ class AuthController extends Controller
         ]);
     }
 
-    private function revokeUserRefreshTokens(User $user, string $deviceName): void {
+    private function revokeUserRefreshTokens(User $user, string $deviceName): void
+    {
         RefreshToken::where('user_id', $user->getKey())
-        ->where('device_name', $deviceName)
-        ->whereNull('revoked_time')
-        ->update(['revoked_time' => now()]);
+            ->where('device_name', $deviceName)
+            ->whereNull('revoked_time')
+            ->update(['revoked_time' => now()]);
     }
 }

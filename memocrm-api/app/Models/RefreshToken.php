@@ -8,8 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class RefreshToken extends Model
 {
     protected $table = 'refresh_tokens';
+    public $timestamps = false;
+    protected $primaryKey = 'seq_cd';
 
     protected $fillable = [
+        'seq_cd',
         'user_id',
         'token_hash',
         'device_name',
