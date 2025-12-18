@@ -55,7 +55,7 @@ class AuthController extends Controller
         // ユーザー情報が空でパスワードが一致しない場合
         if (!$user || !Hash::check($data['password'], $user->password)) {
             return response()->json([
-                'error' => 'メールアドレスかパスワードが違います',
+                'message' => 'メールアドレスかパスワードが違います',
             ], 422);
         }
 
@@ -122,13 +122,13 @@ class AuthController extends Controller
 
                 if (!$rt || !$rt->isActive()) {
                     return response()->json([
-                        'message' => '無効なリフレッシュトークンです',
+                        'message' => '長期間操作がありませんでした。再度ログインしてください。',
                     ], 422);
                 }
                 $user = $rt->user()->first();
                 if (!$user) {
                     return response()->json([
-                        'message' => '無効なリフレッシュトークンです',
+                        'message' => '長期間操作がありませんでした。再度ログインしてください。',
                     ], 422);
                 }
 
@@ -222,7 +222,7 @@ class AuthController extends Controller
      *
      * @param User $user
      * @param string $deviceName
-     * @return string
+     * @return array
      */
     private function createAccessToken(User $user, string $deviceName): array
     {
@@ -232,7 +232,7 @@ class AuthController extends Controller
     }
 
     /**
-     * レフレッシュトークンの作成とDB保存メソッド
+     * リフレッシュトークンの作成とDB保存メソッド
      *
      * @param User $user
      * @param string $deviceName
