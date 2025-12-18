@@ -125,7 +125,7 @@ class AuthController extends Controller
                         'message' => '長期間操作がありませんでした。再度ログインしてください。',
                     ], 422);
                 }
-                $user = $rt->user()->first();
+                $user = $rt->user();
                 if (!$user) {
                     return response()->json([
                         'message' => '長期間操作がありませんでした。再度ログインしてください。',
@@ -138,7 +138,7 @@ class AuthController extends Controller
                 $newRefresh = $this->createRefreshToken($user, $deviceName, $request);
 
                 // 既存のリフレッシュトークンのデータでここに移動したことを既存データに残す
-                $rt->replaced_by_token_id = $newRefresh['seq_cd'];
+                $rt->replaced_by_seq_cd = $newRefresh['seq_cd'];
                 // モデルが既存レコードなら UPDATE、未挿入なら INSERT を実行します（主キーの有無で判定）
                 $rt->save();
 
@@ -174,7 +174,14 @@ class AuthController extends Controller
 
         // リフレッシュトークンを無効化する
         try {
-            RefreshToken::where('device_name', $request->device_name)->whereNull('revoked_time')->update(['revoked_time' => now()]);
+            RefreshToken::where(
+                [
+                    ['device_name', $request->device_name],
+                    ['user_id', $request->user()->getKey()],
+                ]
+            )
+                ->whereNull('revoked_time')
+                ->update(['revoked_time' => now()]);
         } catch (\Throwable $e) {
             Log::error('予期せぬエラーが起きました', ['error' => $e->getMessage()]);
             return response()->json([
