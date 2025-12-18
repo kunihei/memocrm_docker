@@ -84,7 +84,7 @@ class AuthController extends Controller
                 ], 200);
             });
         } catch (\Throwable $e) {
-            Log::error("運営会社に問い合わせてください", ['error' => $e->getMessage()]);
+            Log::error("予期せぬエラーが起きました", ['error' => $e->getMessage()]);
             return response()->json([
                 'message' => '一時的なエラーが発生しました。しばらくしてから再度お試しください',
             ], 500);
@@ -154,7 +154,7 @@ class AuthController extends Controller
                 ], 200);
             });
         } catch (\Throwable $e) {
-            Log::error("運営会社に問い合わせてください", ['error' => $e->getMessage()]);
+            Log::error("予期せぬエラーが起きました", ['error' => $e->getMessage()]);
             return response()->json([
                 'message' => '一時的なエラーが発生しました。しばらくしてから再度お試しください',
             ], 500);
@@ -173,7 +173,15 @@ class AuthController extends Controller
         $request->user()?->currentAccessToken()?->delete();
 
         // リフレッシュトークンを無効化する
-        RefreshToken::where('device_name', $request->device_name)->whereNull('revoked_time')->update(['revoked_time' => now()]);
+        try {
+            RefreshToken::where('device_name', $request->device_name)->whereNull('revoked_time')->update(['revoked_time' => now()]);
+        } catch (\Throwable $e) {
+            Log::error('予期せぬエラーが起きました', ['error' => $e->getMessage()]);
+            return response()->json([
+                'message' => '一時的なエラーが発生しました。しばらくしてから再度お試しください',
+            ], 500);
+        }
+
 
         return response()->json([
             'ok' => true,
@@ -223,6 +231,14 @@ class AuthController extends Controller
         return ['token' => $accessToken, 'expires_time' => $accessExpiresTime->toIso8601String()];
     }
 
+    /**
+     * レフレッシュトークンの作成とDB保存メソッド
+     *
+     * @param User $user
+     * @param string $deviceName
+     * @param Request $request
+     * @return array
+     */
     private function createRefreshToken(User $user, string $deviceName, Request $request): array
     {
         $refreshPlain = Str::random(64);
