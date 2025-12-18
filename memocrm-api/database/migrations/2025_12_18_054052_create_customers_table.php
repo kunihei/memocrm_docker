@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('customers', function (Blueprint $table) {
+            $table->integer('co_cd')->primary();
+            $table->integer('user_id');
+            $table->string('co_name');
+            $table->string('co_address');
+            $table->string('co_tanto_name');
+            $table->string('co_tanto_tel');
+            $table->timestamp('create_time')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('update_time')->nullable();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('customers');
+    }
+};
