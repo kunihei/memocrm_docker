@@ -72,11 +72,11 @@
 
 ### 3.2 DB設計
 - [x] users テーブル
-- [ ] customers テーブル
+- [x] customers テーブル
 - [ ] memos テーブル
 - [ ] tags テーブル
 - [ ] customer_tag 中間テーブル
-- [ ] refresh_tokens テーブル
+- [x] refresh_tokens テーブル
 
 ### 3.3 API実装
 - [x] 認証API（login / logout / me）
