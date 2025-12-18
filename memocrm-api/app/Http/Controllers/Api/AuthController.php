@@ -13,8 +13,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 
-use function Symfony\Component\Clock\now;
-
 class AuthController extends Controller
 {
 
@@ -61,47 +59,36 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $tokenName = $data['device_name'] ?? 'mobile';
+        $deviceName = $data['device_name'] ?? 'mobile';
 
         // ここで「端末単位でログインし直したら既存を消す」運用も可
-        // $this->revokeUserRefreshTokens($user, $tokenName);
+        // $this->revokeUserRefreshTokens($user, $deviceName);
 
         // クロージャ内の複数の DB 操作を一つのトランザクションとして実行
         // クロージャが例外を投げなければコミット、例外が発生すれば自動でロールバックされます。
-        // use ($user, $tokenName, $request)はクロージャ内で変数を使用する記述
-        return DB::transaction(function () use ($user, $tokenName, $request) {
-            // 1) アクセストークン作成
-            $accessExpiresAt = Carbon::now()->addMinutes(self::ACCESS_TOKEN_MINUTES);
-            $accessToken = $user->createToken($tokenName, ['*'], $accessExpiresAt)->plainTextToken;
+        // use ($user, $deviceName, $request)はクロージャ内で変数を使用する記述
+        try {
+            return DB::transaction(function () use ($user, $deviceName, $request) {
+                // 1) アクセストークン作成
+                $access = $this->createAccessToken($user, $deviceName);
 
-            // 2) リフレッシュトークン作成
-            $refreshPlain = Str::random(64);
-            $refreshHash = hash('sha256', $refreshPlain);
+                // 2) リフレッシュトークン作成
+                $refresh = $this->createRefreshToken($user, $deviceName, $request);
 
-            $refreshExpiresAt = Carbon::now()->addDays(self::REFRESH_TOKEN_DAYS);
-            // lockForUpdateは排他ロックをかける
-            $last = RefreshToken::orderByDesc('seq_cd')->lockForUpdate()->first();
-            $seqCd = ($last->seq_cd ?? 0) + 1;
-
-            // リフレッシュトークンをDBに保存
-            RefreshToken::create([
-                'seq_cd' => $seqCd,
-                'user_id' => $user->getKey(),
-                'token_hash' => $refreshHash,
-                'device_name' => $tokenName,
-                'user_agent' => substr((string)$request->userAgent(), 0, 2000),
-                'ip_address' => $request->ip(),
-                'expires_time' => $refreshExpiresAt,
-            ]);
-
+                return response()->json([
+                    'access_token' => $access['token'],
+                    'access_token_expires_at' => $access['expires_time'],
+                    'refresh_token' => $refresh['token'],
+                    'refresh_token_expires_at' => $refresh['expires_time'],
+                    'token_type' => 'Bearer',
+                ], 200);
+            });
+        } catch (\Throwable $e) {
+            Log::error("運営会社に問い合わせてください", ['error' => $e->getMessage()]);
             return response()->json([
-                'access_token' => $accessToken,
-                'access_token_expires_at' => $accessExpiresAt->toIso8601String(),
-                'refresh_token' => $refreshPlain,
-                'refresh_token_expires_at' => $refreshExpiresAt->toIso8601String(),
-                'token_type' => 'Bearer',
-            ], 200);
-        });
+                'message' => '一時的なエラーが発生しました。しばらくしてから再度お試しください',
+            ], 500);
+        }
     }
 
     /**
@@ -147,43 +134,29 @@ class AuthController extends Controller
 
                 $rt->revoked_time = Carbon::now();
 
-                $newRefreshPlain = Str::random(64);
-                $newRefreshHash = hash('sha256', $newRefreshPlain);
-                $newRefreshExpiresAt = Carbon::now()->addDays(self::REFRESH_TOKEN_DAYS);
-
-                $last = RefreshToken::orderByDesc('seq_cd')->lockForUpdate()->first();
-                $seqCd = ($last->seq_cd ?? 0) + 1;
-
-                RefreshToken::create([
-                    'seq_cd' => $seqCd,
-                    'user_id' => $user->getKey(),
-                    'token_hash' => $newRefreshHash,
-                    'device_name' => $deviceName,
-                    'user_agent' => substr((string)$request->userAgent(), 0, 2000),
-                    'ip_address' => $request->ip(),
-                    'expires_time' => $newRefreshExpiresAt,
-                ]);
+                // リフレッシュトークンの作成
+                $newRefresh = $this->createRefreshToken($user, $deviceName, $request);
 
                 // 既存のリフレッシュトークンのデータでここに移動したことを既存データに残す
-                $rt->replaced_by_token_id = $seqCd;
+                $rt->replaced_by_token_id = $newRefresh['seq_cd'];
                 // モデルが既存レコードなら UPDATE、未挿入なら INSERT を実行します（主キーの有無で判定）
                 $rt->save();
 
-                $accessExpiresAt = Carbon::now()->addMinutes(self::ACCESS_TOKEN_MINUTES);
-                $accessToken = $user->createToken($deviceName, ['*'], $accessExpiresAt)->plainTextToken;
+                // アクセストークン作成
+                $access = $this->createAccessToken($user, $deviceName);
 
                 return response()->json([
-                    'access_token' => $accessToken,
-                    'access_token_expires_at' => $accessExpiresAt->toIso8601String(),
-                    'refresh_token' => $newRefreshPlain,
-                    'refresh_token_expires_at' => $newRefreshExpiresAt->toIso8601String(),
+                    'access_token' => $access['token'],
+                    'access_token_expires_at' => $access['expires_time'],
+                    'refresh_token' => $newRefresh['token'],
+                    'refresh_token_expires_at' => $newRefresh['expires_time'],
                     'token_type' => 'Bearer',
                 ], 200);
             });
         } catch (\Throwable $e) {
             Log::error("運営会社に問い合わせてください", ['error' => $e->getMessage()]);
             return response()->json([
-                'message' => '運営会社に問い合わせてください',
+                'message' => '一時的なエラーが発生しました。しばらくしてから再度お試しください',
             ], 500);
         }
     }
@@ -200,7 +173,7 @@ class AuthController extends Controller
         $request->user()?->currentAccessToken()?->delete();
 
         // リフレッシュトークンを無効化する
-        RefreshToken::where('user_id', $request->user()->getKey())->whereNull('revoked_time')->update(['revoked_time' => now()]);
+        RefreshToken::where('device_name', $request->device_name)->whereNull('revoked_time')->update(['revoked_time' => now()]);
 
         return response()->json([
             'ok' => true,
@@ -233,5 +206,43 @@ class AuthController extends Controller
             ->where('device_name', $deviceName)
             ->whereNull('revoked_time')
             ->update(['revoked_time' => now()]);
+    }
+
+
+    /**
+     * アクセストークンを作成するメソッド
+     *
+     * @param User $user
+     * @param string $deviceName
+     * @return string
+     */
+    private function createAccessToken(User $user, string $deviceName): array
+    {
+        $accessExpiresTime = Carbon::now()->addMinutes(self::ACCESS_TOKEN_MINUTES);
+        $accessToken = $user->createToken($deviceName, ['*'], $accessExpiresTime)->plainTextToken;
+        return ['token' => $accessToken, 'expires_time' => $accessExpiresTime->toIso8601String()];
+    }
+
+    private function createRefreshToken(User $user, string $deviceName, Request $request): array
+    {
+        $refreshPlain = Str::random(64);
+        $refreshHash = hash('sha256', $refreshPlain);
+
+        $refreshExpiresTime = Carbon::now()->addDays(self::REFRESH_TOKEN_DAYS);
+        // lockForUpdateは排他ロックをかける
+        $last = RefreshToken::orderByDesc('seq_cd')->lockForUpdate()->first();
+        $seqCd = ($last->seq_cd ?? 0) + 1;
+
+        // リフレッシュトークンをDBに保存ï
+        RefreshToken::create([
+            'seq_cd' => $seqCd,
+            'user_id' => $user->getKey(),
+            'token_hash' => $refreshHash,
+            'device_name' => $deviceName,
+            'user_agent' => substr((string)$request->userAgent(), 0, 2000),
+            'ip_address' => $request->ip(),
+            'expires_time' => $refreshExpiresTime,
+        ]);
+        return ['seq_cd' => $seqCd, 'token' => $refreshPlain, 'expires_time' => $refreshExpiresTime->toIso8601String()];
     }
 }

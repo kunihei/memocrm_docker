@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('ip_address', 45)->nullable();
             $table->timestamp('expires_time');
             $table->timestamp('revoked_time')->nullable();
-            $table->integer('replaced_by_token_id')->nullable();
+            $table->integer('replaced_by_seq_cd')->nullable();
             $table->dateTime('create_time')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->dateTime('update_time')->nullable();
 
