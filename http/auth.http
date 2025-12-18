@@ -9,7 +9,7 @@ POST {{baseURL}}/login
 {{headers}}
 
 email=admin@example.com
-&password=password
+&password=password2
 &device_name=iphone3
 
 ### リフレッシュトークン更新API

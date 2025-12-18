@@ -36,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
             $ip = (string) $request->ip();
             $rt = (string) $request->input('refresh_token', '');
 
-            $rtKey = $rt !== '' ? substr(hash('sha256', $rt), 0, 32) : 'no-rt';
+            $rtKey = $rt !== '' ? hash('sha256', $rt) : 'no-rt|'.$ip;
             return Limit::perMinute(10)->by($rtKey);
         });
     }

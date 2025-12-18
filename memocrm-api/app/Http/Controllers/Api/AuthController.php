@@ -54,6 +54,7 @@ class AuthController extends Controller
 
         // ユーザー情報が空でパスワードが一致しない場合
         if (!$user || !Hash::check($data['password'], $user->password)) {
+            Log::error('ログイン失敗', ['request' => $request->all()]);
             return response()->json([
                 'message' => 'メールアドレスかパスワードが違います',
             ], 422);
@@ -121,12 +122,14 @@ class AuthController extends Controller
                 $rt = RefreshToken::where('token_hash', $incomingHash)->lockForUpdate()->first();
 
                 if (!$rt || !$rt->isActive()) {
+                    Log::error('ユーザー情報なし', ['request' => $request->all()]);
                     return response()->json([
                         'message' => '長期間操作がありませんでした。再度ログインしてください。',
                     ], 422);
                 }
                 $user = $rt->user;
                 if (!$user) {
+                    Log::error('ユーザー情報なし', ['request' => $request->all()]);
                     return response()->json([
                         'message' => '長期間操作がありませんでした。再度ログインしてください。',
                     ], 422);
