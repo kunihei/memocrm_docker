@@ -125,7 +125,7 @@ class AuthController extends Controller
                         'message' => '長期間操作がありませんでした。再度ログインしてください。',
                     ], 422);
                 }
-                $user = $rt->user();
+                $user = $rt->user;
                 if (!$user) {
                     return response()->json([
                         'message' => '長期間操作がありませんでした。再度ログインしてください。',
@@ -256,13 +256,13 @@ class AuthController extends Controller
         $last = RefreshToken::orderByDesc('seq_cd')->lockForUpdate()->first();
         $seqCd = ($last->seq_cd ?? 0) + 1;
 
-        // リフレッシュトークンをDBに保存ï
+        // リフレッシュトークンをDBに保存
         RefreshToken::create([
             'seq_cd' => $seqCd,
             'user_id' => $user->getKey(),
             'token_hash' => $refreshHash,
             'device_name' => $deviceName,
-            'user_agent' => substr((string)$request->userAgent(), 0, 2000),
+            'user_agent' => (string)$request->userAgent(),
             'ip_address' => $request->ip(),
             'expires_time' => $refreshExpiresTime,
         ]);

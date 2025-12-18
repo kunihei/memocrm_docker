@@ -8,8 +8,8 @@ Route::get('/health', fn () => ['ok' => true]);
 // });
 Route::controller(AuthController::class)->group(function () {
     // 公開ルート
-    Route::post('/login', 'login');
-    Route::post('/refresh', 'refresh');
+    Route::post('/login', 'login')->middleware('throttle:login');
+    Route::post('/refresh', 'refresh')->middleware('throttle:refresh');
 
     // 認証が必要なルートを内部でまとめる（ミドルウェア重複を削減）
     Route::middleware('auth:sanctum')->group(function () {
