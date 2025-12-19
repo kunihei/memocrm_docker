@@ -72,7 +72,7 @@ class AuthController extends Controller
                 $access = $this->createAccessToken($user, $deviceName);
 
                 // 2) リフレッシュトークン作成
-                $refresh = RefreshToken::issuance($user, $deviceName, $request);
+                $refresh = RefreshToken::issuance($user, $deviceName, $request->userAgent(), $request->ip());
 
                 return response()->json([
                     'access_token' => $access['token'],
@@ -127,7 +127,7 @@ class AuthController extends Controller
                     ->whereNull('revoked_time')
                     ->lockForUpdate()->first();
 
-                if (!$rt || !$rt->isActive()) {
+                if (!$rt) {
                     Log::error('ユーザー情報なし', ['request' => $request->all()]);
                     return response()->json([
                         'message' => '長期間操作がありませんでした。再度ログインしてください。',
@@ -144,7 +144,7 @@ class AuthController extends Controller
                 $rt->revoked_time = $nowTime;
 
                 // リフレッシュトークンの作成
-                $newRefresh = RefreshToken::issuance($user, $deviceName, $request);
+                $newRefresh = RefreshToken::issuance($user, $deviceName, $request->userAgent(), $request->ip());
 
                 // 既存のリフレッシュトークンのデータでここに移動したことを既存データに残す
                 $rt->replaced_by_seq_cd = $newRefresh['seq_cd'];

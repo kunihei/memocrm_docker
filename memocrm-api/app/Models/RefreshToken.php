@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
@@ -39,11 +38,6 @@ class RefreshToken extends Model
         return $this->belongsTo(User::class, 'user_cd', 'user_cd');
     }
 
-    public function isActive(): bool
-    {
-        return $this->revoked_time === null && $this->expires_time->isFuture();
-    }
-
     /**
      * リフレッシュトークンの作成とDB保存メソッド
      *
@@ -52,7 +46,7 @@ class RefreshToken extends Model
      * @param Request $request
      * @return array
      */
-    public static function issuance(User $user, string $deviceName, Request $request): array
+    public static function issuance(User $user, string $deviceName, ?string $userAgent, ?string $ipAddress): array
     {
         $refreshPlain = Str::random(64);
         $refreshHash = hash('sha256', $refreshPlain);
@@ -64,8 +58,8 @@ class RefreshToken extends Model
             'user_cd' => $user->getKey(),
             'token_hash' => $refreshHash,
             'device_name' => $deviceName,
-            'user_agent' => (string)$request->userAgent(),
-            'ip_address' => $request->ip(),
+            'user_agent' => $userAgent,
+            'ip_address' => $ipAddress,
             'expires_time' => $refreshExpiresTime,
         ]);
         return ['seq_cd' => $result->seq_cd ?? null, 'token' => $refreshPlain, 'expires_time' => $refreshExpiresTime->toIso8601String()];
