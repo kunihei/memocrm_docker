@@ -4,16 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class RefreshToken extends Model
 {
+    private const REFRESH_TOKEN_DAYS = 30;
+
     protected $table = 'refresh_tokens';
+    public $incrementing = true;
     public $timestamps = false;
     protected $primaryKey = 'seq_cd';
+    protected $keyType = 'int';
 
     protected $fillable = [
-        'seq_cd',
-        'user_id',
+        'user_cd',
         'token_hash',
         'device_name',
         'user_agent',
@@ -30,11 +35,34 @@ class RefreshToken extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'user_id');
+        return $this->belongsTo(User::class, 'user_cd', 'user_cd');
     }
 
-    public function isActive(): bool
+    /**
+     * リフレッシュトークンの作成とDB保存メソッド
+     *
+     * @param User $user
+     * @param string $deviceName
+     * @param string|null $userAgent
+     * @param string|null $ipAddress
+     * @return array
+     */
+    public static function issuance(User $user, string $deviceName, ?string $userAgent, ?string $ipAddress): array
     {
-        return $this->revoked_time === null && $this->expires_time->isFuture();
+        $refreshPlain = Str::random(64);
+        $refreshHash = hash('sha256', $refreshPlain);
+
+        $refreshExpiresTime = Carbon::now()->addDays(self::REFRESH_TOKEN_DAYS);
+
+        // リフレッシュトークンをDBに保存
+        $result = self::create([
+            'user_cd' => $user->getKey(),
+            'token_hash' => $refreshHash,
+            'device_name' => $deviceName,
+            'user_agent' => $userAgent,
+            'ip_address' => $ipAddress,
+            'expires_time' => $refreshExpiresTime,
+        ]);
+        return ['seq_cd' => $result->seq_cd ?? null, 'token' => $refreshPlain, 'expires_time' => $refreshExpiresTime->toIso8601String()];
     }
 }
