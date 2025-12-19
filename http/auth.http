@@ -1,15 +1,15 @@
 ### ベースの設定
 @baseURL = http://localhost:8080/api
 @headers = Content-Type: application/x-www-form-urlencoded; charset=UTF-8
-@access_token = Authorization: Bearer 12|MfJWwFVrnVgHHamklcb0MqXqnJy2HQASe4B7HCd7e4c61a76
-@refresh_token = 4J0be3SopUf279kiFlcwNLXAeIrPTRT7Q6phMWXI9293VYoYmHDyGkOmb2xybPtg
+@access_token = Authorization: Bearer 2|P1AbNPSiRIqfHvkoVQuvEoTKQmiC7Dma2TygdVP72d483dea
+@refresh_token = 4kyRniWnYm69QHDU7yGGDe7SaRkNP7I8PM8cnQyHECKUtqAvtSKsPmeK8jkuFJAF
 
 ### ログイン用API
 POST {{baseURL}}/login
 {{headers}}
 
-email=admin@example.com
-&password=password2
+email=admin2@example.com
+&password=password
 &device_name=iphone3
 
 ### リフレッシュトークン更新API

@@ -13,7 +13,7 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
     public $timestamps = false;
-    protected $primaryKey = 'user_id';
+    protected $primaryKey = 'user_cd';
 
     /**
      * The attributes that are mass assignable.
