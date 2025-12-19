@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Request;
 
 class Customers extends model {
     protected $table = 'customers';
@@ -12,7 +10,7 @@ class Customers extends model {
     protected $primaryKey = 'co_cd';
 
     protected $fillable = [
-        'user_id',
+        'user_cd',
         'co_name',
         'co_address',
         'co_tanto_name',
@@ -24,4 +22,26 @@ class Customers extends model {
         'create_time' => 'datetime',
         'update_time' => 'datetime',
     ];
+
+
+    /**
+     * 顧客情報の登録
+     *
+     * @param integer $userCd
+     * @param string $coName
+     * @param string $address
+     * @param string $tantoName
+     * @param string $tantoTel
+     * @return array
+     */
+    public static function regist(int $userCd, string $coName, string $address, string $tantoName, string $tantoTel): array {
+        $customer = self::create([
+            'user_cd' => $userCd,
+            'co_name' => $coName,
+            'co_address' => $address,
+            'co_tanto_name' => $tantoName,
+            'co_tanto_tel' => $tantoTel,
+        ]);
+        return $customer->toArray();
+    }
 }

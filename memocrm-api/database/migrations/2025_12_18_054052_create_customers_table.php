@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->increments('co_cd');
-            $table->integer('user_id');
+            $table->integer('user_cd');
             $table->string('co_name');
             $table->string('co_address');
             $table->string('co_tanto_name');
