@@ -43,7 +43,8 @@ class RefreshToken extends Model
      *
      * @param User $user
      * @param string $deviceName
-     * @param Request $request
+     * @param string|null $userAgent
+     * @param string|null $ipAddress
      * @return array
      */
     public static function issuance(User $user, string $deviceName, ?string $userAgent, ?string $ipAddress): array

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->dateTime('create_time')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->dateTime('update_time')->nullable();
 
-            $table->foreign('user_cd')->references('user_cd')->on('users')->cascadeOnDelete();
+            $table->unsignedInteger('user_cd')->references('user_cd')->on('users')->cascadeOnDelete();
 
             $table->index(['user_cd', 'expires_time']);
             $table->index(['user_cd', 'revoked_time']);
