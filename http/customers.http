@@ -1,0 +1,13 @@
+@baseURL = http://localhost:8080/api
+@headers = Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+@access_token = Authorization: Bearer 16|y3NuJZSlEU6QeYhgz89xhSHk0bDE8tgm5JCDClDB4be4c3a5
+@refresh_token = iYbvY2E31Z6tcNxfMrdONeIYDepc4ybJrwoCdngFpoCkUkHxoGgzm8oIA34gGFTf
+
+### 顧客登録API
+POST {{baseURL}}/customers/regist
+{{access_token}}
+{{headers}}
+
+email=admin@example.com
+&password=password
+&device_name=iphone3
