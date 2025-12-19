@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Request;
 
 class Customers extends model {
     protected $table = 'customers';
@@ -11,7 +12,6 @@ class Customers extends model {
     protected $primaryKey = 'co_cd';
 
     protected $fillable = [
-        'co_cd',
         'user_id',
         'co_name',
         'co_address',
