@@ -59,7 +59,6 @@ class CustomersController extends Controller
             Log::error('catch: 顧客情報の登録に失敗', ['error' => $e->getMessage()]);
             return response()->json([
                 'message' => '顧客情報の登録に失敗しました。',
-                'error' => $e->getMessage(),
             ], 500);
         }
     }

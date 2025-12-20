@@ -52,7 +52,7 @@ class AuthController extends Controller
 
         // ユーザー情報が空でパスワードが一致しない場合
         if (!$user || !Hash::check($data['password'], $user->password)) {
-            Log::error('ログイン失敗', ['request' => $request->all()]);
+            Log::error('ログイン失敗', ['request' => $this->maskSensitive($request->all())]);
             return response()->json([
                 'message' => 'メールアドレスかパスワードが違います',
             ], 422);
@@ -120,22 +120,23 @@ class AuthController extends Controller
                 $nowTime = Carbon::now();
                 $rt = RefreshToken::where(
                     [
-                        ['token_hash', $incomingHash], 
+                        ['token_hash', $incomingHash],
                         ['device_name', $deviceName],
                         ['expires_time', '>', $nowTime],
-                    ])
+                    ]
+                )
                     ->whereNull('revoked_time')
                     ->lockForUpdate()->first();
 
                 if (!$rt) {
-                    Log::error('ユーザー情報なし', ['request' => $request->all()]);
+                    Log::error('ユーザー情報なし', ['request' => $this->maskSensitive($request->all())]);
                     return response()->json([
                         'message' => '長期間操作がありませんでした。再度ログインしてください。',
                     ], 422);
                 }
                 $user = $rt->user;
                 if (!$user) {
-                    Log::error('ユーザー情報なし', ['request' => $request->all()]);
+                    Log::error('ユーザー情報なし', ['request' => $this->maskSensitive($request->all())]);
                     return response()->json([
                         'message' => '長期間操作がありませんでした。再度ログインしてください。',
                     ], 422);
@@ -181,11 +182,12 @@ class AuthController extends Controller
         // 既存のアクセストークンを削除
         $request->user()?->currentAccessToken()?->delete();
 
+        $deviceName = $request->input('device_name', 'mobile');
         // リフレッシュトークンを無効化する
         try {
             RefreshToken::where(
                 [
-                    ['device_name', $request->device_name],
+                    ['device_name', $deviceName],
                     ['user_cd', $request->user()->getKey()],
                 ]
             )
@@ -245,5 +247,22 @@ class AuthController extends Controller
         $accessExpiresTime = Carbon::now()->addMinutes(self::ACCESS_TOKEN_MINUTES);
         $accessToken = $user->createToken($deviceName, ['*'], $accessExpiresTime)->plainTextToken;
         return ['token' => $accessToken, 'expires_time' => $accessExpiresTime->toIso8601String()];
+    }
+
+    /**
+     * ログ出力用：機密キーをマスクする
+     *
+     * @param array $data
+     * @return array
+     */
+    private function maskSensitive(array $data): array
+    {
+        $maskKeys = ['password', 'refresh_token', 'access_token'];
+        foreach ($maskKeys as $key) {
+            if (array_key_exists($key, $data)) {
+                $data[$key] = '****';
+            }
+        }
+        return $data;
     }
 }
