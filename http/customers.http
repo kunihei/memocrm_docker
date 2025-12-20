@@ -1,13 +1,14 @@
 @baseURL = http://localhost:8080/api
 @headers = Content-Type: application/x-www-form-urlencoded; charset=UTF-8
-@access_token = Authorization: Bearer 16|y3NuJZSlEU6QeYhgz89xhSHk0bDE8tgm5JCDClDB4be4c3a5
-@refresh_token = iYbvY2E31Z6tcNxfMrdONeIYDepc4ybJrwoCdngFpoCkUkHxoGgzm8oIA34gGFTf
+@access_token = Authorization: Bearer 1|cZKjkb9rN9Nuho3WgVSen5IM06H0B7SmDf1AG9xCd4430458
+@refresh_token = TlMwm7nrmfzjc7A05iER17oaqJckD9xWn6tW7lTizptdUp3r5ZLJ5t46vx0H7YIK
 
 ### 顧客登録API
 POST {{baseURL}}/customers/regist
 {{access_token}}
 {{headers}}
 
-email=admin@example.com
-&password=password
-&device_name=iphone3
+co_name=テスト株式会社4
+&co_address=東京都渋谷区1-2-3
+&tanto_name=山田太郎2
+&tanto_tel=090-1234-5678
