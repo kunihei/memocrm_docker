@@ -62,4 +62,24 @@ class CustomersController extends Controller
             ], 500);
         }
     }
+
+    public function update(Request $request) {
+        $valid = Validator::make($request->all(), [
+            'customer_id' => ['required', 'integer'],
+            'co_name' => ['required', 'string'],
+            'co_address' => ['required', 'string'],
+            'tanto_name' => ['required', 'string'],
+            'tanto_tel' => ['required', 'string']
+        ]);
+
+        if ($valid->fails()) {
+            return response()->json([
+                'message' => 'バリデーションエラー',
+                'errors' => $valid->errors(),
+            ], 422);
+        }
+
+        $data = $valid->validated();
+        
+    }
 }
