@@ -21,10 +21,10 @@ class CustomersController extends Controller
     {
 
         $validated = Validator::make($request->all(), [
-            'co_name' => ['required', 'string'],
-            'co_address' => ['required', 'string'],
-            'tanto_name' => ['required', 'string'],
-            'tanto_tel' => ['required', 'string'],
+            'co_name' => ['required', 'string', 'max:100'],
+            'co_address' => ['required', 'string', 'max:200'],
+            'tanto_name' => ['required', 'string', 'max:100'],
+            'tanto_tel' => ['required', 'string', 'max:15'],
         ]);
         if ($validated->fails()) {
             return response()->json([
@@ -74,10 +74,10 @@ class CustomersController extends Controller
     {
         $valid = Validator::make($request->all(), [
             'co_cd' => ['required', 'integer'],
-            'co_name' => ['required', 'string'],
-            'co_address' => ['required', 'string'],
-            'tanto_name' => ['required', 'string'],
-            'tanto_tel' => ['required', 'string']
+            'co_name' => ['required', 'string', 'max:100'],
+            'co_address' => ['required', 'string', 'max:200'],
+            'tanto_name' => ['required', 'string', 'max:100'],
+            'tanto_tel' => ['required', 'string', 'max:15']
         ]);
 
         if ($valid->fails()) {

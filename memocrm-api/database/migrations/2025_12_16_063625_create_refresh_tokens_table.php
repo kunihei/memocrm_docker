@@ -16,7 +16,7 @@ return new class extends Migration
             $table->increments('seq_cd');
             $table->unsignedInteger('user_cd');
             $table->string('token_hash', 64)->unique();
-            $table->string('device_name')->nullable();
+            $table->string('device_name', 100)->nullable();
             $table->text('user_agent')->nullable();
             $table->string('ip_address', 45)->nullable();
             $table->timestamp('expires_time');
