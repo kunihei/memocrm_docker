@@ -38,7 +38,7 @@ class CustomersController extends Controller
 
         try {
             return DB::transaction(function () use ($userCd, $data) {
-                $result = Customers::regist(
+                $result = Customers::coRegist(
                     $userCd,
                     $data['co_name'],
                     $data['co_address'],
@@ -70,6 +70,12 @@ class CustomersController extends Controller
         }
     }
 
+    /**
+     * 顧客情報の更新
+     *
+     * @param Request $request
+     * @return void
+     */
     public function update(Request $request)
     {
         $valid = Validator::make($request->all(), [
@@ -119,6 +125,49 @@ class CustomersController extends Controller
             );
             return response()->json([
                 'message' => '顧客情報の更新に失敗しました。',
+            ], 500);
+        }
+    }
+
+    /**
+     * 顧客情報の削除
+     *
+     * @param Request $request
+     * @return void
+     */
+    public function delete(Request $request)
+    {
+        $valid = validator::make($request->all(), [
+            'co_cd' => ['required', 'integer'],
+        ]);
+        if ($valid->fails()) {
+            return response()->json([
+                'message' => 'バリデーションエラー',
+                'errors' => $valid->errors(),
+            ], 422);
+        }
+        $data = $valid->validated();
+        $userCd = $request->user()->getKey();
+
+        try {
+            return DB::transaction(function () use ($userCd, $data) {
+                $customer = Customers::coDeleete($userCd, $data['co_cd']);
+                if (!$customer) {
+                    return response()->json([
+                        'message' => '顧客情報がありません',
+                    ], 404);
+                }
+                return response()->json([
+                    'message' => '顧客情報の削除に成功しました',
+                ]);
+            });
+        } catch (\Throwable $e) {
+            Log::error(
+                'catch: 顧客情報の削除に失敗',
+                ['error' => $e->getMessage(), 'request' => $data]
+            );
+            return response()->json([
+                'message' => '顧客情報の削除に失敗しました。',
             ], 500);
         }
     }
