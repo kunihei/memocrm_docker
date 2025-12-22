@@ -5,7 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\model;
 use Carbon\Carbon;
 
-class Customers extends model {
+class Customers extends model
+{
     protected $table = 'customers';
     public $timestamps =  false;
     protected $primaryKey = 'co_cd';
@@ -35,7 +36,8 @@ class Customers extends model {
      * @param string $tantoTel
      * @return array
      */
-    public static function coRegist(int $userCd, string $coName, string $address, string $tantoName, string $tantoTel): array {
+    public static function coRegist(int $userCd, string $coName, string $address, string $tantoName, string $tantoTel): array
+    {
         $customer = self::create([
             'user_cd' => $userCd,
             'co_name' => $coName,
@@ -57,8 +59,15 @@ class Customers extends model {
      * @param string $userTel
      * @return boolean
      */
-    public static function coUpdate(int $userCd, int $coCd, string $coName, string $address, string $tantoName, string $userTel): bool {
-        $customer = self::where([['user_cd', $userCd],['co_cd', $coCd], ['del_flg', false]])->lockForUpdate()->first();
+    public static function coUpdate(int $userCd, int $coCd, string $coName, string $address, string $tantoName, string $userTel): bool
+    {
+        $customer = self::where(
+            [
+                ['user_cd', $userCd],
+                ['co_cd', $coCd],
+                ['del_flg', false]
+            ]
+        )->lockForUpdate()->first();
         if (!$customer) {
             // 該当データなし
             return false;
@@ -80,8 +89,14 @@ class Customers extends model {
      * @param integer $coCd
      * @return boolean
      */
-    public static function coDeleete(int $userCd, int $coCd): bool {
-        $customer = self::where([['user_cd', $userCd], ['co_cd', $coCd]])->lockForUpdate()->first();
+    public static function coDeleete(int $userCd, int $coCd): bool
+    {
+        $customer = self::where(
+            [
+                ['user_cd', $userCd],
+                ['co_cd', $coCd]
+            ]
+        )->lockForUpdate()->first();
         if (!$customer) {
             return false;
         }
@@ -90,5 +105,24 @@ class Customers extends model {
         $customer->saveOrFail();
 
         return true;
+    }
+
+    public static function getList(int $userCd)
+    {
+        $customers = self::select(
+            [
+                'co_cd',
+                'co_name',
+                'co_address',
+                'co_tanto_name',
+                'co_tanto_tel',
+            ]
+        )->where(
+            [
+                ['user_cd', $userCd],
+                ['del_flg', false]
+            ]
+        )->orderBy('co_cd', 'desc')->get();
+        return $customers;
     }
 }

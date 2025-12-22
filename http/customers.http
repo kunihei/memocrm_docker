@@ -1,7 +1,7 @@
 @baseURL = http://localhost:8080/api
 @headers = Content-Type: application/x-www-form-urlencoded; charset=UTF-8
-@access_token = 1|oieLjk724PcEHzEAjRJRe0WgKqS07UeLEzJyZLxg00d7bb73
-@refresh_token = M7UlZye93AylgbIrOah6kVJagNws50Q8yYrSziMErB5H6q1KkicwXNcv0XmUKBRM
+@access_token = <your_access_token_here>
+@refresh_token = <your_refresh_token_here>
 @access_token_header = Authorization: Bearer {{access_token}}
 
 ### 顧客登録API
@@ -10,8 +10,8 @@ POST {{baseURL}}/customers/regist
 {{headers}}
 
 co_name=テスト株式会社2
-&co_address=東京都渋谷区1-2-3
-&tanto_name=山田太郎2
+&co_address=東京都渋谷区2-3-4
+&tanto_name=山田太郎
 &tanto_tel=090-1234-5678
 
 ### 顧客更新API
@@ -30,4 +30,9 @@ POST {{baseURL}}/customers/delete
 {{access_token_header}}
 {{headers}}
 
-co_cd=2
+co_cd=1
+
+### 顧客一覧API
+GET {{baseURL}}/customers/list
+{{access_token_header}}
+{{headers}}

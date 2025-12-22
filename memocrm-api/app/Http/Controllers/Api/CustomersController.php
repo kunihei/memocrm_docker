@@ -171,4 +171,33 @@ class CustomersController extends Controller
             ], 500);
         }
     }
+
+    public function list(Request $request)
+    {
+        $userCd = $request->user()->getKey();
+
+        try {
+            $customers = Customers::getList($userCd);
+            if (!$customers) {
+                return response()->json([
+                    'message' => '顧客情報はありません'
+                ]);
+            }
+            return response()->json([
+                'message' => empty($customers) ? '顧客情報はありません' : '正常終了',
+                'data' => $customers->toArray(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error(
+                'catch: 顧客情報取得に失敗',
+                ['error' => $e->getMessage(), 'user_cd' => $userCd]
+            );
+            return response()->json(
+                [
+                    'message' => '顧客情報取得に失敗しました。',
+                ],
+                500
+            );
+        }
+    }
 }

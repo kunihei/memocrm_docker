@@ -1,8 +1,8 @@
 ### ベースの設定
 @baseURL = http://localhost:8080/api
 @headers = Content-Type: application/x-www-form-urlencoded; charset=UTF-8
-@access_token = 2|fPQMzc6XjHscYRAHqHHmfe10BANPdxD5a9STQEAc0f9277f4
-@refresh_token = noQaNRiWO6dMCp0wpcHIVN9jc0tVvtGGFkGROVLHIva5Ba31kghawEuJMQilyOUP
+@access_token = <your_access_token_here>
+@refresh_token = <your_refresh_token_here>
 @access_token_header = Authorization: Bearer {{access_token}}
 
 
