@@ -1,9 +1,10 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CustomersController;
 
-Route::get('/health', fn () => ['ok' => true]);
+Route::get('/health', fn() => ['ok' => true]);
 // Route::middleware('auth:sanctum')->group(function () {
 //     Route::get('/me', fn() => request()->user());
 // });
@@ -20,5 +21,8 @@ Route::controller(AuthController::class)->group(function () {
 });
 
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
-    Route::post('/customers/regist', [CustomersController::class, 'regist']);
+    Route::controller(CustomersController::class)->group(function () {
+        Route::post('/customers/regist', 'regist');
+        Route::post('/customers/update', 'update');
+    });
 });

@@ -34,15 +34,16 @@ class CustomersController extends Controller
         }
 
         $data = $validated->validated();
+        $userCd = $request->user()->getKey();
 
         try {
-            return DB::transaction(function () use ($data, $request) {
+            return DB::transaction(function () use ($userCd, $data) {
                 $result = Customers::regist(
-                    $request->user()->getKey(),
+                    $userCd,
                     $data['co_name'],
                     $data['co_address'],
                     $data['tanto_name'],
-                    $data['tanto_tel'],
+                    $data['tanto_tel']
                 );
 
                 // 追加に失敗した場合は例外を投げる
@@ -56,16 +57,23 @@ class CustomersController extends Controller
                 ]);
             });
         } catch (\Throwable $e) {
-            Log::error('catch: 顧客情報の登録に失敗', ['error' => $e->getMessage()]);
+            Log::error(
+                'catch: 顧客情報の登録に失敗',
+                [
+                    'error' => $e->getMessage(),
+                    'request' => $data
+                ]
+            );
             return response()->json([
                 'message' => '顧客情報の登録に失敗しました。',
             ], 500);
         }
     }
 
-    public function update(Request $request) {
+    public function update(Request $request)
+    {
         $valid = Validator::make($request->all(), [
-            'customer_id' => ['required', 'integer'],
+            'co_cd' => ['required', 'integer'],
             'co_name' => ['required', 'string'],
             'co_address' => ['required', 'string'],
             'tanto_name' => ['required', 'string'],
@@ -80,6 +88,38 @@ class CustomersController extends Controller
         }
 
         $data = $valid->validated();
-        
+        $userCd = $request->user()->getKey();
+
+        try {
+            return DB::transaction(function () use ($userCd, $data) {
+                $result = Customers::coUpdate(
+                    $userCd,
+                    $data['co_cd'],
+                    $data['co_name'],
+                    $data['co_address'],
+                    $data['tanto_name'],
+                    $data['tanto_tel']
+                );
+                if (!$result) {
+                    return response()->json([
+                        'message' => '顧客情報がありません',
+                    ], 404);
+                }
+                return response()->json([
+                    'message' => '顧客情報の更新に成功しました',
+                ]);
+            });
+        } catch (\Throwable $e) {
+            Log::error(
+                'catch: 顧客情報の更新に失敗',
+                [
+                    'error' => $e->getMessage(),
+                    'request' => $data
+                ]
+            );
+            return response()->json([
+                'message' => '顧客情報の更新に失敗しました。',
+            ], 500);
+        }
     }
 }
