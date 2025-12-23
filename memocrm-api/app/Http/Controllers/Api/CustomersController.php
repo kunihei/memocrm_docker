@@ -24,7 +24,7 @@ class CustomersController extends Controller
             'co_name' => ['required', 'string', 'max:100'],
             'co_address' => ['required', 'string', 'max:200'],
             'tanto_name' => ['required', 'string', 'max:100'],
-            'tanto_tel' => ['required', 'string', 'max:15'],
+            'tanto_tel' => ['required', 'string', 'max:15', 'regex:/^[0-9-+()]*$/'],
         ]);
         if ($validated->fails()) {
             return response()->json([
@@ -83,7 +83,7 @@ class CustomersController extends Controller
             'co_name' => ['required', 'string', 'max:100'],
             'co_address' => ['required', 'string', 'max:200'],
             'tanto_name' => ['required', 'string', 'max:100'],
-            'tanto_tel' => ['required', 'string', 'max:15']
+            'tanto_tel' => ['required', 'string', 'max:15', 'regex:/^[0-9-+()]*$/']
         ]);
 
         if ($valid->fails()) {
@@ -137,7 +137,7 @@ class CustomersController extends Controller
      */
     public function delete(Request $request)
     {
-        $valid = validator::make($request->all(), [
+        $valid = Validator::make($request->all(), [
             'co_cd' => ['required', 'integer'],
         ]);
         if ($valid->fails()) {
@@ -178,11 +178,7 @@ class CustomersController extends Controller
 
         try {
             $customers = Customers::getList($userCd);
-            if (!$customers) {
-                return response()->json([
-                    'message' => '顧客情報はありません'
-                ]);
-            }
+
             return response()->json([
                 'message' => empty($customers) ? '顧客情報はありません' : '正常終了',
                 'data' => $customers->toArray(),
