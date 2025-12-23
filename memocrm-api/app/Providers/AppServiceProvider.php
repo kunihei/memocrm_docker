@@ -39,5 +39,10 @@ class AppServiceProvider extends ServiceProvider
             $rtKey = $rt !== '' ? hash('sha256', $rt) : 'no-rt|'.$ip;
             return Limit::perMinute(10)->by($rtKey);
         });
+
+        RateLimiter::for('api', function (Request $request) {
+            $key = $request->user()?->getKey() ?? $request->ip();
+            return Limit::perMinute(10)->by($key);
+        });
     }
 }
