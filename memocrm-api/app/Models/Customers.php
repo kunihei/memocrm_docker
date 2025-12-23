@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\model;
+use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
-class Customers extends model
+class Customers extends Model
 {
     protected $table = 'customers';
     public $timestamps =  false;
