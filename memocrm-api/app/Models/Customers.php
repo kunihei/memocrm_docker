@@ -56,10 +56,10 @@ class Customers extends Model
      * @param string $coName
      * @param string $address
      * @param string $tantoName
-     * @param string $userTel
+     * @param string $tantoTel
      * @return boolean
      */
-    public static function coUpdate(int $userCd, int $coCd, string $coName, string $address, string $tantoName, string $userTel): bool
+    public static function coUpdate(int $userCd, int $coCd, string $coName, string $address, string $tantoName, string $tantoTel): bool
     {
         $customer = self::where(
             [
@@ -75,7 +75,7 @@ class Customers extends Model
         $customer->co_name = $coName;
         $customer->co_address = $address;
         $customer->co_tanto_name = $tantoName;
-        $customer->co_tanto_tel = $userTel;
+        $customer->co_tanto_tel = $tantoTel;
         $customer->update_time = Carbon::now();
         $customer->saveOrFail(); // 失敗なら例外で上位へ
 
