@@ -186,7 +186,7 @@ class CustomersController extends Controller
             $customers = Customers::getList($userCd);
 
             return response()->json([
-                'message' => empty($customers) ? '顧客情報はありません' : '正常終了',
+                'message' => $customers->isEmpty() ? '顧客情報はありません' : '正常終了',
                 'data' => $customers->toArray(),
             ]);
         } catch (\Throwable $e) {
