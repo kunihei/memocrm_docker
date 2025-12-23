@@ -30,9 +30,9 @@ class AuthController extends Controller
         // リクエスト全体の入力値を指定したルールで検証するバリデータを作成
         $validated = Validator::make($request->all(), [
             // メールアドレスは必須、メール形式チェック
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email', 'max:200'],
             // パスワードは必須、文字列かチェック
-            'password' => ['required', 'string'],
+            'password' => ['required', 'string', 'max:20'],
             // デバイス名は任意、文字列かチェック
             'device_name' => ['nullable', 'string'],
         ]);
@@ -98,7 +98,7 @@ class AuthController extends Controller
      */
     public function refresh(Request $request)
     {
-        $valid = validator($request->all(), [
+        $valid = Validator::make($request->all(), [
             'refresh_token' => ['required', 'string'],
             'device_name' => ['nullable', 'string'],
         ]);
