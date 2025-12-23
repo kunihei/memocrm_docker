@@ -180,8 +180,35 @@ GET /api/health
   "ok": true
 }
 ```
+---
+## コマンドメモ
+dockerで行っているので下記のコマンドをはじめにつけるとターミナルを立ち上げてそのまま使える
+```bash
+docker compose exec app
+```
+
+テーブルの作成し直しとテストデータの入れ直しコマンド
+```bash
+php artisan migrate:fresh --seed
+```
+---
+テーブルのマイグレーションファイルを作成するコマンド
+```bash
+php artisan make:migration create_[テーブル名]_table
+```
+---
+
+特定のミグレーションファイルを実行する場合
+```bash
+php artisan migrate --path=database/migrations/2025_12_18_123456_create_customers_table.php
+```
 
 ---
+
+seedファイル作成コマンド
+```bash
+php artisan make:seeder XxxSeeder
+```
 
 ## このアプリで意識した点
 
