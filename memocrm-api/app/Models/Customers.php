@@ -107,6 +107,12 @@ class Customers extends Model
         return true;
     }
 
+    /**
+     * 顧客情報の取得
+     *
+     * @param integer $userCd
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
     public static function getList(int $userCd)
     {
         $customers = self::select(
