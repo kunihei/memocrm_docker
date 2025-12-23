@@ -109,7 +109,7 @@ class CustomersController extends Controller
                 if (!$result) {
                     return response()->json([
                         'message' => '顧客情報がありません',
-                    ], 404);
+                    ], 400);
                 }
                 return response()->json([
                     'message' => '顧客情報の更新に成功しました',
@@ -172,6 +172,12 @@ class CustomersController extends Controller
         }
     }
 
+    /**
+     * 顧客情報の取得API
+     *
+     * @param Request $request
+     * @return void
+     */
     public function list(Request $request)
     {
         $userCd = $request->user()->getKey();
