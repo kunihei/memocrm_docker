@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamp('expires_time');
             $table->timestamp('revoked_time')->nullable();
             $table->unsignedInteger('replaced_by_seq_cd')->nullable();
-            $table->dateTime('create_time')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->dateTime('create_time')->useCurrent();
             $table->dateTime('update_time')->nullable();
 
             $table->foreign('user_cd')->references('user_cd')->on('users')->cascadeOnDelete();

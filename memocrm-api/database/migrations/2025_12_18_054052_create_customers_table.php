@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('co_tanto_name', 100);
             $table->string('co_tanto_tel', 15);
             $table->boolean('del_flg')->default(false);
-            $table->timestamp('create_time')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('create_time')->useCurrent();;
             $table->timestamp('update_time')->nullable();
         });
     }

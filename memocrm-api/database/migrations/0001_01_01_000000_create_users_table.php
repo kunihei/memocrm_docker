@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('email', 200)->unique();
             $table->string('password', 255);
             $table->rememberToken();
-            $table->dateTime('create_time')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->dateTime('create_time')->useCurrent();;
             $table->dateTime('update_time')->nullable();
         });
 
