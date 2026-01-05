@@ -40,9 +40,14 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(10)->by($rtKey);
         });
 
-        RateLimiter::for('api', function (Request $request) {
+        RateLimiter::for('api-reads', function (Request $request) {
             $key = $request->user()?->getKey() ?? $request->ip();
-            return Limit::perMinute(10)->by($key);
+            return Limit::perMinute(20)->by($key);
+        });
+
+        RateLimiter::for('api-writes', function (Request $request) {
+            $key = $request->user()?->getKey() ?? $request->ip();
+            return Limit::perMinute(15)->by($key);
         });
     }
 }

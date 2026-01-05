@@ -20,11 +20,35 @@ Route::controller(AuthController::class)->group(function () {
     });
 });
 
-Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
-    Route::controller(CustomersController::class)->group(function () {
-        Route::get('/customers/list', 'list');
-        Route::post('/customers/regist', 'regist');
-        Route::post('/customers/update', 'update');
-        Route::post('/customers/delete', 'delete');
-    });
+Route::middleware(['auth:sanctum'])->group(function () {
+    $registerProtected = function (string $prefix, string $controller, array $reads = [], array $writes = []) {
+        Route::prefix($prefix)->controller($controller)->group(function () use ($reads, $writes) {
+            if (!empty($reads)) {
+                Route::middleware('throttle:api-reads')->group(function () use ($reads) {
+                    foreach ($reads as $uri => $action) {
+                        Route::get($uri, $action);
+                    }
+                });
+            }
+            if (!empty($writes)) {
+                Route::middleware('throttle:api-writes')->group(function () use ($writes) {
+                    foreach ($writes as $uri => $action) {
+                        Route::post($uri, $action);
+                    }
+                });
+            }
+        });
+    };
+    $registerProtected(
+        'customers',
+        CustomersController::class,
+        [
+            'list' => 'list'
+        ],
+        [
+            'regist' => 'regist',
+            'update' => 'update',
+            'delete' => 'delete'
+        ]
+    );
 });
