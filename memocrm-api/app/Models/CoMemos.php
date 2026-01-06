@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 
 class CoMemos extends Model
 {
@@ -12,7 +11,6 @@ class CoMemos extends Model
     protected $primaryKey = 'co_cd';
 
     protected $fillable = [
-        'memo_cd',
         'co_cd',
         'title',
         'content',
@@ -24,4 +22,13 @@ class CoMemos extends Model
         'create_time' => 'datetime',
         'update_time' => 'datetime',
     ];
+
+    public static function memoRegist(int $coCd, string $title, string $content): array {
+        $comemo = self::create([
+            'co_cd' => $coCd,
+            'title' => $title,
+            'content' => $content,
+        ]);
+        return $comemo->toArray();
+    }
 }

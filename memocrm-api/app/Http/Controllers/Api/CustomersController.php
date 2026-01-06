@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\CoMemos;
 use App\Models\Customers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -19,12 +20,13 @@ class CustomersController extends Controller
      */
     public function regist(Request $request)
     {
-
         $validated = Validator::make($request->all(), [
             'co_name' => ['required', 'string', 'max:100'],
             'co_address' => ['required', 'string', 'max:200'],
             'tanto_name' => ['required', 'string', 'max:100'],
             'tanto_tel' => ['required', 'string', 'max:15', 'regex:/^[0-9-+()]*$/'],
+            'memo_title' => ['required', 'string', 'max:100'],
+            'memo_content' => ['required', 'string', 'max:2000'],
         ]);
         if ($validated->fails()) {
             return response()->json([
@@ -38,22 +40,30 @@ class CustomersController extends Controller
 
         try {
             return DB::transaction(function () use ($userCd, $data) {
-                $result = Customers::coRegist(
+                $customer = Customers::coRegist(
                     $userCd,
-                    $data['co_name'],
-                    $data['co_address'],
-                    $data['tanto_name'],
-                    $data['tanto_tel']
+                    $data
+                );
+                // 追加に失敗した場合は例外を投げる
+                if (!$customer) {
+                    throw new \Exception('顧客情報の登録に失敗しました。');
+                }
+
+                $coMemo = CoMemos::memoRegist(
+                    $customer->co_cd,
+                    $data['memo_title'],
+                    $data['memo_content']
                 );
 
                 // 追加に失敗した場合は例外を投げる
-                if (!$result) {
+                if (!$coMemo) {
                     throw new \Exception('顧客情報の登録に失敗しました。');
                 }
 
                 return response()->json([
                     'message' => '顧客情報の登録に成功しました。',
-                    'customer' => $result,
+                    'customer' => $customer,
+                    'memo' => $coMemo,
                 ]);
             });
         } catch (\Throwable $e) {
