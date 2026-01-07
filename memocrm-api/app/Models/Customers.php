@@ -46,7 +46,7 @@ class Customers extends Model
             'co_tanto_tel' => $data['tanto_tel'],
         ]);
         if (empty($customer->co_cd)) {
-            throw new \Exception("Failed to create customer");
+            throw new \RuntimeException("顧客情報の登録に失敗しました。");
         }
         return $customer;
     }
@@ -132,6 +132,7 @@ class Customers extends Model
                 ['del_flg', false]
             ]
         )->orderBy('co_cd', 'desc')->get();
+        
         return $customers;
     }
 }
