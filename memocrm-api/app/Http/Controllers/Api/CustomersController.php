@@ -39,7 +39,7 @@ class CustomersController extends Controller
         $userCd = $request->user()->getKey();
 
         try {
-            return DB::transaction(function () use ($userCd, $data) {
+            $result = DB::transaction(function () use ($userCd, $data) {
                 $customer = Customers::coRegist(
                     $userCd,
                     $data
@@ -60,12 +60,14 @@ class CustomersController extends Controller
                     throw new \Exception('顧客情報の登録に失敗しました。');
                 }
 
-                return response()->json([
-                    'message' => '顧客情報の登録に成功しました。',
-                    'customer' => $customer,
-                    'memo' => $coMemo,
-                ]);
-            });
+                return ['customer' => $customer, 'memo' => $coMemo];
+            }, 3); // トランザクションのリトライ回数を3回に設定
+            
+            return response()->json([
+                'message' => '顧客情報の登録に成功しました。',
+                'customer' => $result['customer'],
+                'memo' => $result['memo'],
+            ]);
         } catch (\Throwable $e) {
             Log::error(
                 'catch: 顧客情報の登録に失敗',
