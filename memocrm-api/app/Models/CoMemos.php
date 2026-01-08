@@ -36,13 +36,16 @@ class CoMemos extends Model
         return $comemo->toArray();
     }
 
-    public static function memoUpdate(int $memoCd, string $title, string $content): bool {
-        $comemo = self::where('memo_cd', $memoCd)->lockForUpdate()->first();
+    public static function memoUpdate(int $coCd, string $title, string $content): bool {
+
+        $comemo = self::where('co_cd', $coCd)->lockForUpdate()->first();
+
         if (!$comemo) {
             return false;
         }
-        $comemo->title = $title;
-        $comemo->content = $content;
+        
+        $comemo->title = $title ?? '';
+        $comemo->content = $content ?? '';
         $comemo->update_time = Carbon::now();
         $comemo->saveOrFail();
 

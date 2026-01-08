@@ -95,7 +95,9 @@ class CustomersController extends Controller
             'co_name' => ['required', 'string', 'max:100'],
             'co_address' => ['required', 'string', 'max:200'],
             'tanto_name' => ['required', 'string', 'max:100'],
-            'tanto_tel' => ['required', 'string', 'max:15', 'regex:/^[0-9-+()]*$/']
+            'tanto_tel' => ['required', 'string', 'max:15', 'regex:/^[0-9-+()]*$/'],
+            'memo_title' => ['required', 'string', 'max:100'],
+            'memo_content' => ['required', 'string', 'max:2000'],
         ]);
 
         if ($valid->fails()) {
@@ -109,8 +111,8 @@ class CustomersController extends Controller
         $userCd = $request->user()->getKey();
 
         try {
-            return DB::transaction(function () use ($userCd, $data) {
-                $result = Customers::coUpdate(
+            $result = DB::transaction(function () use ($userCd, $data) {
+                $updated = Customers::coUpdate(
                     $userCd,
                     $data['co_cd'],
                     $data['co_name'],
@@ -118,15 +120,33 @@ class CustomersController extends Controller
                     $data['tanto_name'],
                     $data['tanto_tel']
                 );
-                if (!$result) {
-                    return response()->json([
-                        'message' => '顧客情報がありません',
-                    ], 400);
+                
+                if (!$updated) {
+                    return ['status' => 'customer_failed'];
                 }
-                return response()->json([
-                    'message' => '顧客情報の更新に成功しました',
-                ]);
+
+                $memoResult = CoMemos::memoUpdate((int)$data['co_cd'], $data['memo_title'], $data['memo_content']);
+                
+                if (!$memoResult) {
+                    return ['status' => 'memo_failed'];
+                }
+
+                return ['status' => 'success'];
             });
+
+            if ($result['status'] === 'customer_failed') {
+                return response()->json([
+                    'message' => '顧客情報の更新に失敗しました',
+                ], 400);
+            }
+            if ($result['status'] === 'memo_failed') {
+                return response()->json([
+                    'message' => 'メモの更新に失敗しました',
+                ], 400);
+            }
+            return response()->json([
+                'message' => '顧客情報の更新に成功しました',
+            ]);
         } catch (\Throwable $e) {
             Log::error(
                 'catch: 顧客情報の更新に失敗',

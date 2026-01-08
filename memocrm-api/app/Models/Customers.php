@@ -81,7 +81,7 @@ class Customers extends Model
         $customer->co_tanto_tel = $tantoTel;
         $customer->update_time = Carbon::now();
         $customer->saveOrFail(); // 失敗なら例外で上位へ
-
+        
         return true;
     }
 
