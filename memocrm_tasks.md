@@ -73,14 +73,14 @@
 ### 3.2 DB設計
 - [x] users テーブル
 - [x] customers テーブル
-- [ ] memos テーブル
+- [x] memos テーブル
 - [ ] tags テーブル
 - [ ] customer_tag 中間テーブル
 - [x] refresh_tokens テーブル
 
 ### 3.3 API実装
 - [x] 認証API（login / logout / me）
-- [ ] 顧客CRUD API
+- [x] 顧客CRUD API
 - [ ] メモCRUD API
 - [ ] タグCRUD API
 - [ ] 顧客タグ関連API
