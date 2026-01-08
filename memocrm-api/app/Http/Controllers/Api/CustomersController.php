@@ -131,11 +131,7 @@ class CustomersController extends Controller
                     'message' => '顧客情報の更新に失敗しました',
                 ], 400);
             }
-            if ($result['status'] === 'memo_failed') {
-                return response()->json([
-                    'message' => 'メモの更新に失敗しました',
-                ], 400);
-            }
+
             return response()->json([
                 'message' => '顧客情報の更新に成功しました',
             ]);
