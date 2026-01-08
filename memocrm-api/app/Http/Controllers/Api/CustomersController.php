@@ -96,8 +96,6 @@ class CustomersController extends Controller
             'co_address' => ['required', 'string', 'max:200'],
             'tanto_name' => ['required', 'string', 'max:100'],
             'tanto_tel' => ['required', 'string', 'max:15', 'regex:/^[0-9-+()]*$/'],
-            'memo_title' => ['required', 'string', 'max:100'],
-            'memo_content' => ['required', 'string', 'max:2000'],
         ]);
 
         if ($valid->fails()) {
@@ -120,15 +118,9 @@ class CustomersController extends Controller
                     $data['tanto_name'],
                     $data['tanto_tel']
                 );
-                
+
                 if (!$updated) {
                     return ['status' => 'customer_failed'];
-                }
-
-                $memoResult = CoMemos::memoUpdate((int)$data['co_cd'], $data['memo_title'], $data['memo_content']);
-                
-                if (!$memoResult) {
-                    return ['status' => 'memo_failed'];
                 }
 
                 return ['status' => 'success'];
