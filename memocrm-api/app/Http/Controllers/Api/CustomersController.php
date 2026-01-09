@@ -44,9 +44,12 @@ class CustomersController extends Controller
                     $userCd,
                     $data
                 );
-                // 追加に失敗した場合は例外を投げる
-                if (!$customer) {
-                    throw new \RuntimeException('顧客情報の登録に失敗しました。');
+
+                if (isset($data['memo_title'])) {
+                    $data['memo_title'] = '';
+                }
+                if (isset($data['memo_content'])) {
+                    $data['memo_content'] = '';
                 }
 
                 $coMemo = CoMemos::memoRegist(
@@ -60,11 +63,11 @@ class CustomersController extends Controller
                     throw new \RuntimeException('メモの登録に失敗しました。');
                 }
 
-                return ['customer' => $customer, 'memo' => $coMemo];
+                return ['message' => '顧客情報の登録に成功しました', 'customer' => $customer, 'memo' => $coMemo];
             });
 
             return response()->json([
-                'message' => '顧客情報の登録に成功しました。',
+                'message' => $result['message'],
                 'customer' => $result['customer'],
                 'memo' => $result['memo'],
             ]);
@@ -123,11 +126,11 @@ class CustomersController extends Controller
                     throw new \RuntimeException('顧客情報の更新に失敗しました。');
                 }
 
-                return ['status' => 'success'];
+                return ['message' => '顧客情報の更新に成功しました'];
             });
 
             return response()->json([
-                'message' => '顧客情報の更新に成功しました',
+                'message' => $result['message'],
             ]);
         } catch (\Throwable $e) {
             Log::error(

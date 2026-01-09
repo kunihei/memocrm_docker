@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('co_memos', function (Blueprint $table) {
             $table->increments('memo_cd');
             $table->unsignedInteger('co_cd');
-            $table->string('title', 100);
-            $table->string('content', 2000);
+            $table->string('title', 100)->nullable();
+            $table->string('content', 2000)->nullable();
             $table->boolean('del_flg')->default(false);
             $table->timestamp('create_time')->useCurrent();
             $table->timestamp('update_time')->nullable();
