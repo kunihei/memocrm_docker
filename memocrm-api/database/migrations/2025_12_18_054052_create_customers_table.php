@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -20,8 +19,10 @@ return new class extends Migration
             $table->string('co_tanto_name', 100);
             $table->string('co_tanto_tel', 15);
             $table->boolean('del_flg')->default(false);
-            $table->timestamp('create_time')->useCurrent();;
+            $table->timestamp('create_time')->useCurrent();
             $table->timestamp('update_time')->nullable();
+
+            $table->foreign('user_cd')->references('user_cd')->on('users')->cascadeOnDelete();
         });
     }
 

@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -22,8 +21,8 @@ return new class extends Migration
             $table->timestamp('expires_time');
             $table->timestamp('revoked_time')->nullable();
             $table->unsignedInteger('replaced_by_seq_cd')->nullable();
-            $table->dateTime('create_time')->useCurrent();
-            $table->dateTime('update_time')->nullable();
+            $table->timestamp('create_time')->useCurrent();
+            $table->timestamp('update_time')->nullable();
 
             $table->foreign('user_cd')->references('user_cd')->on('users')->cascadeOnDelete();
 

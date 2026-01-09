@@ -45,9 +45,7 @@ class Customers extends Model
             'co_tanto_name' => $data['tanto_name'],
             'co_tanto_tel' => $data['tanto_tel'],
         ]);
-        if (empty($customer->co_cd)) {
-            throw new \RuntimeException("顧客情報の登録に失敗しました。");
-        }
+
         return $customer;
     }
 

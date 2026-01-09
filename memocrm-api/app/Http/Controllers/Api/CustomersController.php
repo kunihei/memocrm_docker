@@ -25,8 +25,8 @@ class CustomersController extends Controller
             'co_address' => ['required', 'string', 'max:200'],
             'tanto_name' => ['required', 'string', 'max:100'],
             'tanto_tel' => ['required', 'string', 'max:15', 'regex:/^[0-9-+()]*$/'],
-            'memo_title' => ['required', 'string', 'max:100'],
-            'memo_content' => ['required', 'string', 'max:2000'],
+            'memo_title' => ['string', 'max:100'],
+            'memo_content' => ['string', 'max:2000'],
         ]);
         if ($validated->fails()) {
             return response()->json([
@@ -61,7 +61,7 @@ class CustomersController extends Controller
                 }
 
                 return ['customer' => $customer, 'memo' => $coMemo];
-            }, 3); // トランザクションのリトライ回数を3回に設定
+            });
 
             return response()->json([
                 'message' => '顧客情報の登録に成功しました。',
@@ -120,17 +120,11 @@ class CustomersController extends Controller
                 );
 
                 if (!$updated) {
-                    return ['status' => 'customer_failed'];
+                    throw new \RuntimeException('顧客情報の更新に失敗しました。');
                 }
 
                 return ['status' => 'success'];
             });
-
-            if ($result['status'] === 'customer_failed') {
-                return response()->json([
-                    'message' => '顧客情報の更新に失敗しました',
-                ], 400);
-            }
 
             return response()->json([
                 'message' => '顧客情報の更新に成功しました',

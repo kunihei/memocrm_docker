@@ -24,30 +24,28 @@ class CoMemos extends Model
         'update_time' => 'datetime',
     ];
 
-    public static function memoRegist(int $coCd, string $title, string $content): array {
-        $comemo = self::create([
+    public static function memoRegist(int $coCd, string $title, string $content): CoMemos {
+        $coMemo = self::create([
             'co_cd' => $coCd,
             'title' => $title,
             'content' => $content,
         ]);
-        if (empty($comemo->memo_cd)) {
-            throw new \RuntimeException("メモの登録に失敗しました。");
-        }
-        return $comemo->toArray();
+
+        return $coMemo;
     }
 
-    public static function memoUpdate(int $coCd, string $title, string $content): bool {
+    public static function memoUpdate(int $memoCd, string $title, string $content): bool {
 
-        $comemo = self::where('co_cd', $coCd)->lockForUpdate()->first();
+        $coMemo = self::where('memo_cd', $memoCd)->lockForUpdate()->first();
 
-        if (!$comemo) {
+        if (!$coMemo) {
             return false;
         }
-        
-        $comemo->title = $title ?? '';
-        $comemo->content = $content ?? '';
-        $comemo->update_time = Carbon::now();
-        $comemo->saveOrFail();
+
+        $coMemo->title = $title;
+        $coMemo->content = $content;
+        $coMemo->update_time = Carbon::now();
+        $coMemo->saveOrFail();
 
         return true;
     }
