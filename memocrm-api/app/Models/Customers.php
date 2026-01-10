@@ -34,18 +34,19 @@ class Customers extends Model
      * @param string $address
      * @param string $tantoName
      * @param string $tantoTel
-     * @return array
+     * @return Customers
      */
-    public static function coRegist(int $userCd, string $coName, string $address, string $tantoName, string $tantoTel): array
+    public static function coRegist(int $userCd, array $data): Customers
     {
         $customer = self::create([
             'user_cd' => $userCd,
-            'co_name' => $coName,
-            'co_address' => $address,
-            'co_tanto_name' => $tantoName,
-            'co_tanto_tel' => $tantoTel,
+            'co_name' => $data['co_name'],
+            'co_address' => $data['co_address'],
+            'co_tanto_name' => $data['tanto_name'],
+            'co_tanto_tel' => $data['tanto_tel'],
         ]);
-        return $customer->toArray();
+
+        return $customer;
     }
 
     /**
@@ -129,6 +130,7 @@ class Customers extends Model
                 ['del_flg', false]
             ]
         )->orderBy('co_cd', 'desc')->get();
+
         return $customers;
     }
 }

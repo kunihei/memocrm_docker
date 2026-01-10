@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -18,8 +17,8 @@ return new class extends Migration
             $table->string('email', 200)->unique();
             $table->string('password', 255);
             $table->rememberToken();
-            $table->dateTime('create_time')->default(DB::raw('CURRENT_TIMESTAMP'));
-            $table->dateTime('update_time')->nullable();
+            $table->timestamp('create_time')->useCurrent();
+            $table->timestamp('update_time')->nullable();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

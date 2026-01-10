@@ -20,11 +20,17 @@ Route::controller(AuthController::class)->group(function () {
     });
 });
 
-Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
-    Route::controller(CustomersController::class)->group(function () {
-        Route::get('/customers/list', 'list');
-        Route::post('/customers/regist', 'regist');
-        Route::post('/customers/update', 'update');
-        Route::post('/customers/delete', 'delete');
-    });
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::registerProtected(
+        'customers',
+        CustomersController::class,
+        [
+            'list' => 'list'
+        ],
+        [
+            'regist' => 'regist',
+            'update' => 'update',
+            'delete' => 'delete'
+        ]
+    );
 });

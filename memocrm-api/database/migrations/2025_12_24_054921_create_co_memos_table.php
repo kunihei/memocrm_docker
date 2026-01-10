@@ -11,18 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('customers', function (Blueprint $table) {
-            $table->increments('co_cd');
-            $table->integer('user_cd');
-            $table->string('co_name', 100);
-            $table->string('co_address', 200);
-            $table->string('co_tanto_name', 100);
-            $table->string('co_tanto_tel', 15);
+        Schema::create('co_memos', function (Blueprint $table) {
+            $table->increments('memo_cd');
+            $table->unsignedInteger('co_cd');
+            $table->string('title', 100)->nullable();
+            $table->string('content', 2000)->nullable();
             $table->boolean('del_flg')->default(false);
             $table->timestamp('create_time')->useCurrent();
             $table->timestamp('update_time')->nullable();
 
-            $table->foreign('user_cd')->references('user_cd')->on('users')->cascadeOnDelete();
+            $table->foreign('co_cd')->references('co_cd')->on('customers')->cascadeOnDelete();
         });
     }
 
@@ -31,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('customers');
+        Schema::dropIfExists('co_memos');
     }
 };

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\CoMemos;
 use App\Models\Customers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -19,12 +20,13 @@ class CustomersController extends Controller
      */
     public function regist(Request $request)
     {
-
         $validated = Validator::make($request->all(), [
             'co_name' => ['required', 'string', 'max:100'],
             'co_address' => ['required', 'string', 'max:200'],
             'tanto_name' => ['required', 'string', 'max:100'],
             'tanto_tel' => ['required', 'string', 'max:15', 'regex:/^[0-9-+()]*$/'],
+            'memo_title' => ['string', 'max:100'],
+            'memo_content' => ['string', 'max:2000'],
         ]);
         if ($validated->fails()) {
             return response()->json([
@@ -37,25 +39,38 @@ class CustomersController extends Controller
         $userCd = $request->user()->getKey();
 
         try {
-            return DB::transaction(function () use ($userCd, $data) {
-                $result = Customers::coRegist(
+            $result = DB::transaction(function () use ($userCd, $data) {
+                $customer = Customers::coRegist(
                     $userCd,
-                    $data['co_name'],
-                    $data['co_address'],
-                    $data['tanto_name'],
-                    $data['tanto_tel']
+                    $data
+                );
+
+                if (!array_key_exists('memo_title', $data)) {
+                    $data['memo_title'] = '';
+                }
+                if (!array_key_exists('memo_content', $data)) {
+                    $data['memo_content'] = '';
+                }
+
+                $coMemo = CoMemos::memoRegist(
+                    $customer->co_cd,
+                    $data['memo_title'],
+                    $data['memo_content']
                 );
 
                 // 追加に失敗した場合は例外を投げる
-                if (!$result) {
-                    throw new \Exception('顧客情報の登録に失敗しました。');
+                if (!$coMemo) {
+                    throw new \RuntimeException('メモの登録に失敗しました');
                 }
 
-                return response()->json([
-                    'message' => '顧客情報の登録に成功しました。',
-                    'customer' => $result,
-                ]);
+                return ['message' => '顧客情報の登録に成功しました', 'customer' => $customer, 'memo' => $coMemo];
             });
+
+            return response()->json([
+                'message' => $result['message'],
+                'customer' => $result['customer'],
+                'memo' => $result['memo'],
+            ]);
         } catch (\Throwable $e) {
             Log::error(
                 'catch: 顧客情報の登録に失敗',
@@ -65,7 +80,7 @@ class CustomersController extends Controller
                 ]
             );
             return response()->json([
-                'message' => '顧客情報の登録に失敗しました。',
+                'message' => '顧客情報の登録に失敗しました',
             ], 500);
         }
     }
@@ -83,7 +98,7 @@ class CustomersController extends Controller
             'co_name' => ['required', 'string', 'max:100'],
             'co_address' => ['required', 'string', 'max:200'],
             'tanto_name' => ['required', 'string', 'max:100'],
-            'tanto_tel' => ['required', 'string', 'max:15', 'regex:/^[0-9-+()]*$/']
+            'tanto_tel' => ['required', 'string', 'max:15', 'regex:/^[0-9-+()]*$/'],
         ]);
 
         if ($valid->fails()) {
@@ -97,8 +112,8 @@ class CustomersController extends Controller
         $userCd = $request->user()->getKey();
 
         try {
-            return DB::transaction(function () use ($userCd, $data) {
-                $result = Customers::coUpdate(
+            $result = DB::transaction(function () use ($userCd, $data) {
+                $updated = Customers::coUpdate(
                     $userCd,
                     $data['co_cd'],
                     $data['co_name'],
@@ -106,15 +121,17 @@ class CustomersController extends Controller
                     $data['tanto_name'],
                     $data['tanto_tel']
                 );
-                if (!$result) {
-                    return response()->json([
-                        'message' => '顧客情報がありません',
-                    ], 400);
+
+                if (!$updated) {
+                    throw new \RuntimeException('顧客情報の更新に失敗しました');
                 }
-                return response()->json([
-                    'message' => '顧客情報の更新に成功しました',
-                ]);
+
+                return ['message' => '顧客情報の更新に成功しました'];
             });
+
+            return response()->json([
+                'message' => $result['message'],
+            ]);
         } catch (\Throwable $e) {
             Log::error(
                 'catch: 顧客情報の更新に失敗',
@@ -124,7 +141,7 @@ class CustomersController extends Controller
                 ]
             );
             return response()->json([
-                'message' => '顧客情報の更新に失敗しました。',
+                'message' => '顧客情報の更新に失敗しました',
             ], 500);
         }
     }
@@ -167,7 +184,7 @@ class CustomersController extends Controller
                 ['error' => $e->getMessage(), 'request' => $data]
             );
             return response()->json([
-                'message' => '顧客情報の削除に失敗しました。',
+                'message' => '顧客情報の削除に失敗しました',
             ], 500);
         }
     }
@@ -196,7 +213,7 @@ class CustomersController extends Controller
             );
             return response()->json(
                 [
-                    'message' => '顧客情報取得に失敗しました。',
+                    'message' => '顧客情報取得に失敗しました',
                 ],
                 500
             );

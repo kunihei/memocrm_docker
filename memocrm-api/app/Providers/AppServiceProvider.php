@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
@@ -28,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
             $ip = (string) $request->ip();
 
             // email が無い/空ならIP単位にフォールバック（バリデーション前の攻撃対策）
-            $key = $email !== '' ? $email.'|'.$ip : 'no-email|'.$ip;
+            $key = $email !== '' ? $email . '|' . $ip : 'no-email|' . $ip;
             return Limit::perMinute(10)->by($key);
         });
 
@@ -36,13 +36,18 @@ class AppServiceProvider extends ServiceProvider
             $ip = (string) $request->ip();
             $rt = (string) $request->input('refresh_token', '');
 
-            $rtKey = $rt !== '' ? hash('sha256', $rt) : 'no-rt|'.$ip;
+            $rtKey = $rt !== '' ? hash('sha256', $rt) : 'no-rt|' . $ip;
             return Limit::perMinute(10)->by($rtKey);
         });
 
-        RateLimiter::for('api', function (Request $request) {
+        RateLimiter::for('api-reads', function (Request $request) {
             $key = $request->user()?->getKey() ?? $request->ip();
-            return Limit::perMinute(10)->by($key);
+            return Limit::perMinute(20)->by($key);
+        });
+
+        RateLimiter::for('api-writes', function (Request $request) {
+            $key = $request->user()?->getKey() ?? $request->ip();
+            return Limit::perMinute(15)->by($key);
         });
     }
 }
