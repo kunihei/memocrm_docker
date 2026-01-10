@@ -45,10 +45,10 @@ class CustomersController extends Controller
                     $data
                 );
 
-                if (isset($data['memo_title'])) {
+                if (!array_key_exists('memo_title', $data)) {
                     $data['memo_title'] = '';
                 }
-                if (isset($data['memo_content'])) {
+                if (!array_key_exists('memo_content', $data)) {
                     $data['memo_content'] = '';
                 }
 
@@ -60,7 +60,7 @@ class CustomersController extends Controller
 
                 // 追加に失敗した場合は例外を投げる
                 if (!$coMemo) {
-                    throw new \RuntimeException('メモの登録に失敗しました。');
+                    throw new \RuntimeException('メモの登録に失敗しました');
                 }
 
                 return ['message' => '顧客情報の登録に成功しました', 'customer' => $customer, 'memo' => $coMemo];
@@ -80,7 +80,7 @@ class CustomersController extends Controller
                 ]
             );
             return response()->json([
-                'message' => '顧客情報の登録に失敗しました。',
+                'message' => '顧客情報の登録に失敗しました',
             ], 500);
         }
     }
@@ -123,7 +123,7 @@ class CustomersController extends Controller
                 );
 
                 if (!$updated) {
-                    throw new \RuntimeException('顧客情報の更新に失敗しました。');
+                    throw new \RuntimeException('顧客情報の更新に失敗しました');
                 }
 
                 return ['message' => '顧客情報の更新に成功しました'];
@@ -141,7 +141,7 @@ class CustomersController extends Controller
                 ]
             );
             return response()->json([
-                'message' => '顧客情報の更新に失敗しました。',
+                'message' => '顧客情報の更新に失敗しました',
             ], 500);
         }
     }
@@ -184,7 +184,7 @@ class CustomersController extends Controller
                 ['error' => $e->getMessage(), 'request' => $data]
             );
             return response()->json([
-                'message' => '顧客情報の削除に失敗しました。',
+                'message' => '顧客情報の削除に失敗しました',
             ], 500);
         }
     }
@@ -213,7 +213,7 @@ class CustomersController extends Controller
             );
             return response()->json(
                 [
-                    'message' => '顧客情報取得に失敗しました。',
+                    'message' => '顧客情報取得に失敗しました',
                 ],
                 500
             );

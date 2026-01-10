@@ -24,7 +24,16 @@ class CoMemos extends Model
         'update_time' => 'datetime',
     ];
 
-    public static function memoRegist(int $coCd, string $title, string $content): CoMemos {
+    /**
+     * 顧客に紐づくメモを登録
+     *
+     * @param integer $coCd
+     * @param string $title
+     * @param string $content
+     * @return CoMemos
+     */
+    public static function memoRegist(int $coCd, string $title, string $content): CoMemos
+    {
         $coMemo = self::create([
             'co_cd' => $coCd,
             'title' => $title,
@@ -34,9 +43,22 @@ class CoMemos extends Model
         return $coMemo;
     }
 
-    public static function memoUpdate(int $memoCd, string $title, string $content): bool {
+    /**
+     * 顧客に紐づくメモの更新
+     *
+     * @param integer $memoCd
+     * @param string $title
+     * @param string $content
+     * @return boolean
+     */
+    public static function memoUpdate(int $memoCd, $coCd, string $title, string $content): bool
+    {
 
-        $coMemo = self::where('memo_cd', $memoCd)->lockForUpdate()->first();
+        $coMemo = self::where([
+            ['memo_cd', $memoCd],
+            ['co_cd', $coCd],
+            ['del_flg', false],
+        ])->lockForUpdate()->first();
 
         if (!$coMemo) {
             return false;
