@@ -34,9 +34,9 @@ class CoMemos extends Model
         return $coMemo;
     }
 
-    public static function memoUpdate(int $memoCd, string $title, string $content): bool {
+    public static function memoUpdate(int $memoCd, int $coCd, string $title, string $content): bool {
 
-        $coMemo = self::where('memo_cd', $memoCd)->lockForUpdate()->first();
+        $coMemo = self::where(['memo_cd' => $memoCd, 'co_cd' => $coCd])->lockForUpdate()->first();
 
         if (!$coMemo) {
             return false;
