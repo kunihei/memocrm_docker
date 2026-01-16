@@ -38,19 +38,17 @@ class MemosController extends Controller
 
         try {
             $result = DB::transaction(function () use ($data) {
-                $coMemo = CoMemos::memoUpdate((int)$data['memo_cd'], (int)$data['co_cd'], $data['title'], $data['content']);
 
+                $coMemo = CoMemos::memoUpdate((int)$data['memo_cd'], (int)$data['co_cd'], $data['title'], $data['content']);
                 if (!$coMemo) {
                     throw new RuntimeException('メモ情報の更新に失敗しました。');
                 }
-
                 return ['message' => 'メモ情報の更新に成功しました。'];
             });
 
             return response()->json([
                 'message' => $result['message'],
             ]);
-
         } catch (\Throwable $e) {
 
             Log::error(
@@ -62,7 +60,6 @@ class MemosController extends Controller
                         'co_cd' => $data['co_cd'] ?? NULL,
                     ],
                 ]);
-
             return response()->json([
                 'message' => 'メモ情報の更新に失敗しました'
                 ], 500);
@@ -78,7 +75,52 @@ class MemosController extends Controller
      */
     public function delete(Request $request)
     {
-        
+        $valid = Validator::make($request->all(),[
+            'co_cd' => ['required', 'integer'],
+            'memo_cd' => ['required', 'integer'],
+        ]);
+        if ($valid->fails()) {
+            return response()->json([
+                'message' => '不正なアクセス',
+            ], 422);
+        }
+        $data = $valid->validated();
+
+        try {
+            $result = DB::transaction(function () use ($data) {
+                $coMemo = CoMemos::memoDelete((int)$data['co_cd'], (int)$data['memo_cd']);
+                if (!$coMemo) {
+                    return [
+                        'status' => 'error',
+                        'message' => 'メモの削除に失敗しました。'
+                        ];
+                }
+                return [
+                    'status' => 'success',
+                    'message' => 'メモの削除に成功しました。'
+                    ];
+            });
+
+            if ($result['status'] === 'error') {
+                return response()->json([
+                    'message' => $result['message'],
+                ], 422);
+            }
+            return response()->json([
+                'message' => $result['message'],
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('catch: メモの削除に失敗しました', [
+                'error' => $e->getMessage(),
+                'data' => [
+                    'memo_cd' => $data['memo_cd'] ?? NULL,
+                    'co_cd' => $data['co_cd'] ?? NULL,
+                ],
+            ]);
+            return response()->json([
+                'message' => 'メモの削除に失敗しました'
+                ], 500);
+        }
     }
 
     /**
@@ -89,6 +131,34 @@ class MemosController extends Controller
      */
     public function list(Request $request)
     {
+        $valid = Validator::make($request->all(), [
+            'co_cd' => ['required', 'integer'],
+        ]);
         
+        if ($valid->fails()) {
+            return response()->json([
+                'message' => '不正なアクセス',
+            ], 422);
+        }
+        $data = $valid->validated();
+        try {
+            $memos = CoMemos::memoList((int)$data['co_cd']);
+            return response()->json([
+                'message' => 'メモ一覧の取得に成功しました。',
+                'data' => $memos,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error(
+                'catch: メモ一覧の取得に失敗しました。',
+                [
+                    'error' => $e->getMessage(),
+                    'data' => ['co_cd' => $data['co_cd'] ?? null]
+                ],
+            );
+
+            return response()->json([
+                'message' => 'メモ一覧の取得に失敗しました。'
+            ], 500);
+        }
     }
 }

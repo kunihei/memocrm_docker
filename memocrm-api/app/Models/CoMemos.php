@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class CoMemos extends Model
 {
     protected $table = 'co_memos';
     public $timestamps =  false;
-    protected $primaryKey = 'memo_cd';
+    protected $primaryKey = null;
+    public $incrementing = false;
 
     protected $fillable = [
         'co_cd',
@@ -24,9 +26,12 @@ class CoMemos extends Model
         'update_time' => 'datetime',
     ];
 
-    public static function memoRegist(int $coCd, string $title, string $content): CoMemos {
+    public static function memoRegist(int $coCd, string $title, string $content): CoMemos
+    {
+        $nextMemoCd = (int) self::where('co_cd', $coCd)->max('memo_cd') + 1;
         $coMemo = self::create([
             'co_cd' => $coCd,
+            'memo_cd' => $nextMemoCd,
             'title' => $title,
             'content' => $content,
         ]);
@@ -34,7 +39,8 @@ class CoMemos extends Model
         return $coMemo;
     }
 
-    public static function memoUpdate(int $memoCd, int $coCd, string $title, string $content): bool {
+    public static function memoUpdate(int $memoCd, int $coCd, string $title, string $content): bool
+    {
 
         $coMemo = self::where(['memo_cd' => $memoCd, 'co_cd' => $coCd])->lockForUpdate()->first();
 
@@ -42,11 +48,75 @@ class CoMemos extends Model
             return false;
         }
 
-        $coMemo->title = $title;
-        $coMemo->content = $content;
-        $coMemo->update_time = Carbon::now();
-        $coMemo->saveOrFail();
+        // $coMemo->title = $title;
+        // $coMemo->content = $content;
+        // $coMemo->update_time = Carbon::now();
+        // $coMemo->saveOrFail();
+        $updated = self::where([
+            'memo_cd' => $memoCd,
+            'co_cd' => $coCd
+        ])
+            ->update([
+                'title' => $title,
+                'content' => $content,
+                'update_time' => Carbon::now()
+            ]);
+        if ($updated === 0) {
+            return false;
+        }
 
         return true;
+    }
+
+    public static function memoDelete(int $coCd, int $memoCd): bool
+    {
+        $memo = CoMemos::where(
+            [
+                ['co_cd', $coCd],
+                ['memo_cd', $memoCd],
+            ]
+        )->lockForUpdate()->first();
+
+        if (!$memo) {
+            return false;
+        }
+
+        // $memo->del_flg = true;
+        // $memo->update_time = Carbon::now();
+        // $memo->saveOrFail();
+        $updated = self::where([
+            'co_cd' => $coCd,
+            'memo_cd' => $memoCd,
+        ])->update([
+            'del_flg' => true,
+            'update_time' => Carbon::now(),
+        ]);
+
+        if ($updated === 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static function memoList(int $coCd): Collection
+    {
+        $memos = self::select(
+            [
+                'co_cd',
+                'memo_cd',
+                'title',
+                'content',
+                'create_time',
+                'update_time'
+            ]
+        )->where(
+            [
+                ['co_cd', $coCd],
+                ['del_flg', false]
+            ]
+        )->orderBy('memo_cd', 'desc')->get();
+
+        return $memos;
     }
 }
