@@ -13,6 +13,48 @@ use RuntimeException;
 class MemosController extends Controller
 {
 
+    public function regist(Request $request) {
+        $valid = Validator::make($request->all(),[
+            'co_cd' => ['required', 'integer'],
+            'title' => ['required', 'string', 'max:100'],
+            'content' => ['required', 'string', 'max:2000'],
+        ]);
+
+        if ($valid->fails()) {
+            return response()->json([
+                'message' => 'バリデーションエラー',
+                'errors' => $valid->errors(),
+            ], 422);
+        }
+
+        $data = $valid->validated();
+
+        try {
+            $result = DB::transaction(function () use ($data) {
+                $coMemo = CoMemos::memoRegist((int)$data['co_cd'], $data['title'], $data['content']);
+                if (!$coMemo) {
+                    throw new RuntimeException('メモの登録に失敗しました。');
+                }
+                return [
+                    'message' => 'メモの登録に成功しました。',
+                    'memo' => $coMemo
+                ];
+            });
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            Log::error(
+                'catch: メモの登録に失敗しました。',
+                [
+                    'error' => $e->getMessage(),
+                    'data' => $data,
+                ]
+            );
+            return response()->json([
+                'message' => 'メモの登録に失敗しました。'
+            ], 500);
+        }
+    }
+
     /**
      * メモ情報の更新
      *
@@ -25,7 +67,7 @@ class MemosController extends Controller
             'memo_cd' => ['required', 'integer'],
             'co_cd' => ['required', 'integer'],
             'title' => ['required', 'string', 'max:100'],
-            'content' => ['required', 'string'],
+            'content' => ['required', 'string', 'max:2000'],
         ]);
 
         if ($valid->fails()) {
@@ -46,9 +88,7 @@ class MemosController extends Controller
                 return ['message' => 'メモ情報の更新に成功しました。'];
             });
 
-            return response()->json([
-                'message' => $result['message'],
-            ]);
+            return response()->json($result);
         } catch (\Throwable $e) {
 
             Log::error(
@@ -131,7 +171,7 @@ class MemosController extends Controller
      */
     public function list(Request $request)
     {
-        $valid = Validator::make($request->all(), [
+        $valid = Validator::make(['co_cd' => $request->co_cd], [
             'co_cd' => ['required', 'integer'],
         ]);
         

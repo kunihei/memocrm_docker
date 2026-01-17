@@ -38,9 +38,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'memos',
         MemosController::class,
         [
-            'list' => 'list'
+            'list/{co_cd}' => 'list'
         ],
         [
+            'regist' => 'regist',
             'update' => 'update',
             'delete' => 'delete',
         ]

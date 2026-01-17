@@ -22,6 +22,7 @@ class RouteServiceProvider extends ServiceProvider
          *   - 第1引数 `$prefix` : ルートのプレフィックス（例: 'api/customers'）
          *   - 第2引数 `$controller` : コントローラのクラス名
          *   - 第3引数 `$reads` : 読み取り用ルートの連想配列 (uri => action)
+         *     例: ['list' => 'list', 'show/{co_cd}' => 'show']
          *   - 第4引数 `$writes` : 書き込み用ルートの連想配列 (uri => action)
          *
          *   このマクロは、読み取りルートに `throttle:api-reads`、

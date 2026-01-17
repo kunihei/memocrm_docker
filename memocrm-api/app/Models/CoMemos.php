@@ -15,6 +15,7 @@ class CoMemos extends Model
 
     protected $fillable = [
         'co_cd',
+        'memo_cd',
         'title',
         'content',
         'del_flg',
@@ -36,7 +37,8 @@ class CoMemos extends Model
      */
     public static function memoRegist(int $coCd, string $title, string $content): CoMemos
     {
-        $nextMemoCd = (int) self::where('co_cd', $coCd)->max('memo_cd') + 1;
+        $nextMemoCd = (int) self::where('co_cd', $coCd)->lockForUpdate()->max('memo_cd') + 1;
+        
         $coMemo = self::create([
             'co_cd' => $coCd,
             'memo_cd' => $nextMemoCd,
@@ -85,6 +87,13 @@ class CoMemos extends Model
         return true;
     }
 
+    /**
+     * メモの削除
+     *
+     * @param integer $coCd
+     * @param integer $memoCd
+     * @return boolean
+     */
     public static function memoDelete(int $coCd, int $memoCd): bool
     {
         $memo = CoMemos::where(
@@ -116,6 +125,12 @@ class CoMemos extends Model
         return true;
     }
 
+    /**
+     * メモの一覧取得
+     *
+     * @param integer $coCd
+     * @return Collection
+     */
     public static function memoList(int $coCd): Collection
     {
         $memos = self::select(
