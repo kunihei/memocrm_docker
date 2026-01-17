@@ -26,6 +26,14 @@ class CoMemos extends Model
         'update_time' => 'datetime',
     ];
 
+    /**
+     * 顧客に紐づくメモを登録
+     *
+     * @param integer $coCd
+     * @param string $title
+     * @param string $content
+     * @return CoMemos
+     */
     public static function memoRegist(int $coCd, string $title, string $content): CoMemos
     {
         $nextMemoCd = (int) self::where('co_cd', $coCd)->max('memo_cd') + 1;
@@ -39,6 +47,15 @@ class CoMemos extends Model
         return $coMemo;
     }
 
+        /**
+     * 顧客に紐づくメモの更新
+     *
+     * @param integer $memoCd
+     * * @param integer $coCd
+     * @param string $title
+     * @param string $content
+     * @return boolean
+     */
     public static function memoUpdate(int $memoCd, int $coCd, string $title, string $content): bool
     {
 
