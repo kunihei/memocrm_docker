@@ -98,9 +98,11 @@ class Customers extends Model
                 ['co_cd', $coCd]
             ]
         )->lockForUpdate()->first();
+        
         if (!$customer) {
             return false;
         }
+
         $customer->del_flg = true;
         $customer->update_time = Carbon::now();
         $customer->saveOrFail();

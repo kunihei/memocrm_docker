@@ -159,8 +159,7 @@ class CustomersController extends Controller
         ]);
         if ($valid->fails()) {
             return response()->json([
-                'message' => 'バリデーションエラー',
-                'errors' => $valid->errors(),
+                'message' => '不正なアクセス',
             ], 422);
         }
         $data = $valid->validated();
