@@ -1,10 +1,12 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
-class Tags extends Model {
+class Tags extends Model
+{
     protected $table = 'tags';
     public $timestamps = false;
     protected $primaryKey = 'tag_cd';
@@ -27,10 +29,12 @@ class Tags extends Model {
      * @param string $tagName
      * @return Tags
      */
-    public static function tagRegist(string $tagName): Tags {
+    public static function tagRegist(string $tagName): Tags
+    {
         $tag = self::create([
             'tag_name' => $tagName,
         ]);
+
         return $tag;
     }
 }

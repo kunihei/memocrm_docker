@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CustomersController;
 use App\Http\Controllers\Api\MemosController;
+use App\Http\Controllers\Api\TagsController;
 
 Route::get('/health', fn() => ['ok' => true]);
 // Route::middleware('auth:sanctum')->group(function () {
@@ -45,6 +46,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
             'update' => 'update',
             'delete' => 'delete',
         ]
-
+    );
+    Route::registerProtected(
+        'tag',
+        TagsController::class,
+        [],
+        [
+            'regist' => 'regist',
+        ]
     );
 });
