@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Collection;
 use Carbon\Carbon;
 
 class Tags extends Model
@@ -36,5 +37,22 @@ class Tags extends Model
         ]);
 
         return $tag;
+    }
+
+    /**
+     * タグ一覧を取得
+     *
+     * @param integer $userCd
+     * @return Collection
+     */
+    public static function tagList(int $userCd): Collection
+    {
+        return self::select([
+            'tag_cd',
+            'tag_name',
+        ])->where([
+            ['user_cd', $userCd],
+            ['del_flg', false]
+        ])->get();
     }
 }

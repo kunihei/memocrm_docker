@@ -81,7 +81,7 @@
 ### 3.3 API実装
 - [x] 認証API（login / logout / me）
 - [x] 顧客CRUD API
-- [ ] メモCRUD API
+- [x] メモCRUD API
 - [ ] タグCRUD API
 - [ ] 顧客タグ関連API
 

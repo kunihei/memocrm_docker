@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Collection;
 use Carbon\Carbon;
 
 class Customers extends Model
@@ -114,9 +115,9 @@ class Customers extends Model
      * 顧客情報の取得
      *
      * @param integer $userCd
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
-    public static function getList(int $userCd)
+    public static function getList(int $userCd): Collection
     {
         $customers = self::select(
             [

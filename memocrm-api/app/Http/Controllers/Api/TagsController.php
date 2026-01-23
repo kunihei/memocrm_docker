@@ -55,4 +55,27 @@ class TagsController extends Controller
             ], 500);
         }
     }
+
+    public function list(Request $request) {
+        $userCd = $request->user()->getKey();
+        try {
+            $tags = Tags::tagList($userCd);
+            return response()->json([
+                'message' => 'タグ一覧の取得に成功しました。',
+                'tags' => $tags,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error(
+                'catch: タグ一覧の取得に失敗しました。',
+                [
+                    'error' => $e->getMessage(),
+                    'user_cd' => $userCd,
+                ]
+            );
+            return response()->json([
+                'message' => 'タグ一覧の取得に失敗しました。',
+            ], 500);
+        }
+        $tags = Tags::tagList($request->user()->getKey());
+    }
 }

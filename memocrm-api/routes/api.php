@@ -50,7 +50,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::registerProtected(
         'tag',
         TagsController::class,
-        [],
+        [
+            'list' => 'list',
+        ],
         [
             'regist' => 'regist',
         ]

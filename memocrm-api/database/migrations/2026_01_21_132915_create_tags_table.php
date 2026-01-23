@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('tags', function (Blueprint $table) {
             $table->increments('tag_cd');
+            $table->unsignedInteger('user_cd');
             $table->string('tag_name', 100);
             $table->boolean('del_flg')->default(false);
             $table->dateTime('create_time')->useCurrent();
             $table->dateTime('update_time')->nullable();
+
+            $table->foreign('user_cd')->references('user_cd')->on('users')->cascadeOnDelete();
         });
     }
 
