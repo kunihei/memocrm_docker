@@ -26,15 +26,16 @@ class TagsController extends Controller
         }
 
         $data = $valid->validated();
+        $userCd = $request->user()->getKey();
 
         try {
-            $result = DB::transaction(function () use ($data) {
-                $tag = Tags::tagRegist($data['tag_name']);
+            $result = DB::transaction(function () use ($data, $userCd) {
+                $tag = Tags::tagRegist($userCd, $data['tag_name']);
                 if (!$tag) {
                     throw new RuntimeException('タグの登録に失敗しました。');
                 }
                 return [
-                    'message' => 'タグの登録に成功しました。',
+                    'message' => 'タグの登録に成功しました',
                     'tag' => $tag,
                 ];
             });

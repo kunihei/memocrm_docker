@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
-use Carbon\Carbon;
 
 class Tags extends Model
 {
@@ -13,6 +12,7 @@ class Tags extends Model
     protected $primaryKey = 'tag_cd';
 
     protected $fillable = [
+        'user_cd',
         'tag_name',
         'update_time',
         'del_flg',
@@ -30,9 +30,10 @@ class Tags extends Model
      * @param string $tagName
      * @return Tags
      */
-    public static function tagRegist(string $tagName): Tags
+    public static function tagRegist(int $userCd, string $tagName): Tags
     {
         $tag = self::create([
+            'user_cd' => $userCd,
             'tag_name' => $tagName,
         ]);
 
