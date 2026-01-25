@@ -57,6 +57,49 @@ class TagsController extends Controller
         }
     }
 
+    public function update(Request $request) {
+        $valid = Validator::make($request->all(), [
+            'tag_cd' => ['required', 'integer'],
+            'tag_name' => ['required', 'string', 'max:100'],
+        ]);
+
+        if ($valid->fails()) {
+            return response()->json([
+                'message' => 'バリデーションエラー',
+                'errors' => $valid->errors(),
+            ], 422);
+        }
+
+        $data = $valid->validated();
+        $userCd = $request->user()->getKey();
+
+        try {
+            $result = DB::transaction(function () use ($data, $userCd) {
+                $tag = Tags::tagUpdate($userCd, $data['tag_cd'], $data['tag_name']);
+                if (!$tag) {
+                    throw new RuntimeException('タグの更新に失敗しました。');
+                }
+                return [
+                    'message' => 'タグの更新に成功しました',
+                ];
+            });
+            return response()->json([
+                'message' => $result['message'],
+            ]);
+        } catch (\Throwable $e) {
+            Log::error(
+                'catch: タグの更新に失敗しました。',
+                [
+                    'error' => $e->getMessage(),
+                    'data' => $data,
+                ]
+            );
+            return response()->json([
+                'message' => 'タグの更新に失敗しました'
+            ], 500);
+        }
+    }
+
     public function list(Request $request) {
         $userCd = $request->user()->getKey();
         try {

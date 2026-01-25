@@ -41,6 +41,28 @@ class Tags extends Model
     }
 
     /**
+     * タグの更新
+     *
+     * @param integer $userCd
+     * @param integer $tagCd
+     * @param string $tagName
+     * @return boolean
+     */
+    public static function tagUpdate(int $userCd, int $tagCd, string $tagName): bool {
+        $tag = self::where([
+            ['user_cd', $userCd],
+            ['tag_cd', $tagCd],
+            ['del_flg', false],])->lockForUpdate()->first();
+            if (!$tag) {
+                return false;
+            }
+            $tag->tag_name = $tagName;
+            $tag->saveOrFail();
+
+            return true;
+    }
+
+    /**
      * タグ一覧を取得
      *
      * @param integer $userCd
