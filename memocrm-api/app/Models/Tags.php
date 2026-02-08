@@ -57,9 +57,32 @@ class Tags extends Model
                 return false;
             }
             $tag->tag_name = $tagName;
+            $tag->update_time = now();
             $tag->saveOrFail();
 
             return true;
+    }
+
+    /**
+     * タグの削除
+     *
+     * @param integer $userCd
+     * @param integer $tagCd
+     * @return boolean
+     */
+    public static function tagDelete(int $userCd, int $tagCd): bool {
+        $tag = self::where([
+            ['user_cd', $userCd],
+            ['tag_cd', $tagCd],
+            ['del_flg', false],
+        ])->lockForUpdate()->first();
+        if (!$tag) {
+            return false;
+        }
+        $tag->del_flg = true;
+        $tag->update_time = now();
+        $tag->saveOrFail();
+        return true;
     }
 
     /**

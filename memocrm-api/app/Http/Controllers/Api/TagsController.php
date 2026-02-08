@@ -76,15 +76,14 @@ class TagsController extends Controller
         try {
             $result = DB::transaction(function () use ($data, $userCd) {
                 $tag = Tags::tagUpdate($userCd, $data['tag_cd'], $data['tag_name']);
-                if (!$tag) {
-                    throw new RuntimeException('タグの更新に失敗しました。');
-                }
-                return [
-                    'message' => 'タグの更新に成功しました',
-                ];
+                return $tag;
             });
+
+            if (!$result) {
+                throw new RuntimeException('タグの更新に失敗しました。');
+            }
             return response()->json([
-                'message' => $result['message'],
+                'message' => 'タグの更新に成功しました',
             ]);
         } catch (\Throwable $e) {
             Log::error(
@@ -96,6 +95,47 @@ class TagsController extends Controller
             );
             return response()->json([
                 'message' => 'タグの更新に失敗しました'
+            ], 500);
+        }
+    }
+
+    public function delete(Request $request) {
+        $valid = Validator::make($request->all(), [
+            'tag_cd' => ['required', 'integer'],
+        ]);
+
+        if ($valid->fails()) {
+            return response()->json([
+                'message' => 'バリデーションエラー',
+                'errors' => $valid->errors(),
+            ], 422);
+        }
+
+        $data = $valid->validated();
+        $userCd = $request->user()->getKey();
+
+        try {
+            $result = DB::transaction(function () use ($data, $userCd) {
+                $tag = Tags::tagDelete($userCd, $data['tag_cd']);
+                return $tag;
+            });
+
+            if (!$result) {
+                throw new RuntimeException('タグの削除に失敗しました。');
+            }
+            return response()->json([
+                'message' => 'タグの削除に成功しました',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error(
+                'catch: タグの削除に失敗しました。',
+                [
+                    'error' => $e->getMessage(),
+                    'data' => $data,
+                ]
+            );
+            return response()->json([
+                'message' => 'タグの削除に失敗しました'
             ], 500);
         }
     }

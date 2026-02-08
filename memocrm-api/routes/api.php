@@ -56,6 +56,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [
             'regist' => 'regist',
             'update' => 'update',
+            'delete' => 'delete',
         ]
     );
 });
