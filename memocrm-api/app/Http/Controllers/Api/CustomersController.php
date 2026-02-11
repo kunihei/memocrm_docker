@@ -68,8 +68,10 @@ class CustomersController extends Controller
 
             return response()->json([
                 'message' => $result['message'],
-                'customer' => $result['customer'],
-                'memo' => $result['memo'],
+                'data' => [
+                    'customer' => $result['customer'],
+                    'memo' => $result['memo'],
+                ],
             ]);
         } catch (\Throwable $e) {
             Log::error(

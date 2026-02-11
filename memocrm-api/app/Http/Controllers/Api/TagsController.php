@@ -21,7 +21,7 @@ class TagsController extends Controller
         if ($valid->fails()) {
             return response()->json([
                 'message' => 'バリデーションエラー',
-                'erroes' => $valid->errors(),
+                'errors' => $valid->errors(),
             ], 422);
         }
 
@@ -41,7 +41,7 @@ class TagsController extends Controller
             });
             return response()->json([
                 'message' => $result['message'],
-                'tag' => $result['tag'],
+                'data' => $result['tag'],
             ]);
         } catch (\Throwable $e) {
             Log::error(
@@ -146,7 +146,7 @@ class TagsController extends Controller
             $tags = Tags::tagList($userCd);
             return response()->json([
                 'message' => 'タグ一覧の取得に成功しました。',
-                'tags' => $tags,
+                'data' => $tags,
             ]);
         } catch (\Throwable $e) {
             Log::error(
@@ -160,6 +160,5 @@ class TagsController extends Controller
                 'message' => 'タグ一覧の取得に失敗しました。',
             ], 500);
         }
-        $tags = Tags::tagList($request->user()->getKey());
     }
 }

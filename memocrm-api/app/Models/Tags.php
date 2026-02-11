@@ -27,6 +27,7 @@ class Tags extends Model
     /**
      * タグの登録
      *
+     * @param integer $userCd
      * @param string $tagName
      * @return Tags
      */
@@ -48,19 +49,25 @@ class Tags extends Model
      * @param string $tagName
      * @return boolean
      */
-    public static function tagUpdate(int $userCd, int $tagCd, string $tagName): bool {
+    public static function tagUpdate(int $userCd, int $tagCd, string $tagName): bool
+    {
         $tag = self::where([
             ['user_cd', $userCd],
             ['tag_cd', $tagCd],
-            ['del_flg', false],])->lockForUpdate()->first();
-            if (!$tag) {
-                return false;
-            }
-            $tag->tag_name = $tagName;
-            $tag->update_time = now();
-            $tag->saveOrFail();
+            ['del_flg', false],
+        ])
+            ->lockForUpdate()
+            ->first();
 
-            return true;
+        if (!$tag) {
+            return false;
+        }
+        
+        $tag->tag_name = $tagName;
+        $tag->update_time = now();
+        $tag->saveOrFail();
+
+        return true;
     }
 
     /**
@@ -70,7 +77,8 @@ class Tags extends Model
      * @param integer $tagCd
      * @return boolean
      */
-    public static function tagDelete(int $userCd, int $tagCd): bool {
+    public static function tagDelete(int $userCd, int $tagCd): bool
+    {
         $tag = self::where([
             ['user_cd', $userCd],
             ['tag_cd', $tagCd],
