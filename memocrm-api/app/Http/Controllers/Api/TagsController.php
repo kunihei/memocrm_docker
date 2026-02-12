@@ -80,7 +80,9 @@ class TagsController extends Controller
             });
 
             if (!$result) {
-                throw new RuntimeException('タグの更新に失敗しました。');
+                return response()->json([
+                    'message' => 'タグの更新に失敗しました',
+                ], 404);
             }
             return response()->json([
                 'message' => 'タグの更新に成功しました',
@@ -121,7 +123,9 @@ class TagsController extends Controller
             });
 
             if (!$result) {
-                throw new RuntimeException('タグの削除に失敗しました。');
+                return response()->json([
+                    'message' => 'タグの削除に失敗しました',
+                ], 404);
             }
             return response()->json([
                 'message' => 'タグの削除に成功しました',
