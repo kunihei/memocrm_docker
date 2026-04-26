@@ -1,0 +1,30 @@
+@baseURL = http://localhost:8080/api
+@headers = Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+@access_token = 1|kcEYZmyrMqU9hExwtyuQMwZ6Of57oxf9ecUxfAQJ49e4a095
+@refresh_token = KHVuPRyN6mRCmO3z9PWBATvkUFJVqHVAZpLlEgpaNQw5s9wQXQ6HuegKRN9pklEx
+@access_token_header = Authorization: Bearer {{access_token}}
+
+### メモ更新API
+POST {{baseURL}}/memos/update
+{{access_token_header}}
+{{headers}}
+
+co_cd=9
+&memo_cd=1
+&title=初回面談メモ更新
+&content=初回面談では、今後の取引について前向きな話ができました。内容を更新しました。
+
+### メモ削除API
+POST {{baseURL}}/memos/delete
+{{access_token_header}}
+{{headers}}
+
+co_cd=1
+&memo_cd=1
+
+### メモ一覧API
+GET {{baseURL}}/memos/list
+{{access_token_header}}
+{{headers}}
+
+co_cd=2

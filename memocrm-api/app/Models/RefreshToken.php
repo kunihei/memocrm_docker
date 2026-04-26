@@ -25,7 +25,7 @@ class RefreshToken extends Model
         'ip_address',
         'expires_time',
         'revoked_time',
-        'replaced_by_token_id',
+        'replaced_by_seq_cd',
     ];
 
     protected $casts = [

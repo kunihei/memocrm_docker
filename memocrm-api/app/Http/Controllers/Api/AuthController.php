@@ -40,7 +40,7 @@ class AuthController extends Controller
         // バリデーションチェックに引っかかったかのチェック
         if ($validated->fails()) {
             return response()->json([
-                'message' => 'バリデーションエラー',
+                'message' => ['バリデーションエラー'],
                 'errors' => $validated->errors(),
             ], 422);
         }
@@ -54,7 +54,7 @@ class AuthController extends Controller
         if (!$user || !Hash::check($data['password'], $user->password)) {
             Log::error('ログイン失敗', ['request' => $this->maskSensitive($request->all())]);
             return response()->json([
-                'message' => 'メールアドレスかパスワードが違います',
+                'message' => ['メールアドレスかパスワードが違います'],
             ], 422);
         }
 
@@ -85,7 +85,7 @@ class AuthController extends Controller
         } catch (\Throwable $e) {
             Log::error("予期せぬエラーが起きました", ['error' => $e->getMessage()]);
             return response()->json([
-                'message' => '一時的なエラーが発生しました。しばらくしてから再度お試しください',
+                'message' => ['一時的なエラーが発生しました。しばらくしてから再度お試しください'],
             ], 500);
         }
     }
@@ -105,7 +105,7 @@ class AuthController extends Controller
 
         if ($valid->fails()) {
             return response()->json([
-                'message' => 'バリデーションエラー',
+                'message' => ['バリデーションエラー'],
                 'errors' => $valid->errors(),
             ], 422);
         }
@@ -131,14 +131,14 @@ class AuthController extends Controller
                 if (!$rt) {
                     Log::error('ユーザー情報なし', ['request' => $this->maskSensitive($request->all())]);
                     return response()->json([
-                        'message' => '長期間操作がありませんでした。再度ログインしてください。',
+                        'message' => ['長期間操作がありませんでした。再度ログインしてください。'],
                     ], 422);
                 }
                 $user = $rt->user;
                 if (!$user) {
                     Log::error('ユーザー情報なし', ['request' => $this->maskSensitive($request->all())]);
                     return response()->json([
-                        'message' => '長期間操作がありませんでした。再度ログインしてください。',
+                        'message' => ['長期間操作がありませんでした。再度ログインしてください。'],
                     ], 422);
                 }
 
@@ -166,7 +166,7 @@ class AuthController extends Controller
         } catch (\Throwable $e) {
             Log::error("予期せぬエラーが起きました", ['error' => $e->getMessage()]);
             return response()->json([
-                'message' => '一時的なエラーが発生しました。しばらくしてから再度お試しください',
+                'message' => ['一時的なエラーが発生しました。しばらくしてから再度お試しください'],
             ], 500);
         }
     }
@@ -196,7 +196,7 @@ class AuthController extends Controller
         } catch (\Throwable $e) {
             Log::error('予期せぬエラーが起きました', ['error' => $e->getMessage()]);
             return response()->json([
-                'message' => '一時的なエラーが発生しました。しばらくしてから再度お試しください',
+                'message' => ['一時的なエラーが発生しました。しばらくしてから再度お試しください'],
             ], 500);
         }
 
