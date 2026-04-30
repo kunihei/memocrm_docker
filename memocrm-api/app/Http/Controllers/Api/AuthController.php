@@ -208,20 +208,10 @@ class AuthController extends Controller
 
 
         return response()->json([
-            'ok' => true,
-        ]);
-    }
-
-    /**
-     * ログイン情報を取得するだけのAPI
-     *
-     * @param Request $request
-     * @return void
-     */
-    public function me(Request $request)
-    {
-        return response()->json([
-            'user' => $request->user(),
+            'message_list' => ['ログアウトに成功しました'],
+            'data' => [
+                'ok' => true,
+            ],
         ]);
     }
 
