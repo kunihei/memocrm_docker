@@ -129,7 +129,7 @@ docker compose exec app php artisan migrate
 
 アクセス：
 ```
-http://localhost:8080
+http://localhost:8081
 ```
 
 ---

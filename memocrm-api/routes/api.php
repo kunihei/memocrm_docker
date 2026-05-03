@@ -17,7 +17,6 @@ Route::controller(AuthController::class)->group(function () {
     // 認証が必要なルートを内部でまとめる（ミドルウェア重複を削減）
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', 'logout');
-        Route::get('/me', 'me');
     });
 });
 

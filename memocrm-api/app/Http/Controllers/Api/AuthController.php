@@ -40,7 +40,7 @@ class AuthController extends Controller
         // バリデーションチェックに引っかかったかのチェック
         if ($validated->fails()) {
             return response()->json([
-                'message' => 'バリデーションエラー',
+                'message_list' => ['バリデーションエラー'],
                 'errors' => $validated->errors(),
             ], 422);
         }
@@ -54,7 +54,7 @@ class AuthController extends Controller
         if (!$user || !Hash::check($data['password'], $user->password)) {
             Log::error('ログイン失敗', ['request' => $this->maskSensitive($request->all())]);
             return response()->json([
-                'message' => 'メールアドレスかパスワードが違います',
+                'message_list' => ['メールアドレスかパスワードが違います'],
             ], 422);
         }
 
@@ -75,17 +75,20 @@ class AuthController extends Controller
                 $refresh = RefreshToken::issuance($user, $deviceName, $request->userAgent(), $request->ip());
 
                 return response()->json([
-                    'access_token' => $access['token'],
-                    'access_token_expires_at' => $access['expires_time'],
-                    'refresh_token' => $refresh['token'],
-                    'refresh_token_expires_at' => $refresh['expires_time'],
-                    'token_type' => 'Bearer',
+                    'message_list' => ['ログインに成功しました'],
+                    'data' => [
+                        'access_token' => $access['token'],
+                        'access_token_expires_at' => $access['expires_time'],
+                        'refresh_token' => $refresh['token'],
+                        'refresh_token_expires_at' => $refresh['expires_time'],
+                        'token_type' => 'Bearer',
+                    ],
                 ], 200);
             });
         } catch (\Throwable $e) {
             Log::error("予期せぬエラーが起きました", ['error' => $e->getMessage()]);
             return response()->json([
-                'message' => '一時的なエラーが発生しました。しばらくしてから再度お試しください',
+                'message_list' => ['一時的なエラーが発生しました。しばらくしてから再度お試しください'],
             ], 500);
         }
     }
@@ -105,7 +108,7 @@ class AuthController extends Controller
 
         if ($valid->fails()) {
             return response()->json([
-                'message' => 'バリデーションエラー',
+                'message_list' => ['バリデーションエラー'],
                 'errors' => $valid->errors(),
             ], 422);
         }
@@ -131,14 +134,14 @@ class AuthController extends Controller
                 if (!$rt) {
                     Log::error('ユーザー情報なし', ['request' => $this->maskSensitive($request->all())]);
                     return response()->json([
-                        'message' => '長期間操作がありませんでした。再度ログインしてください。',
+                        'message_list' => ['長期間操作がありませんでした。再度ログインしてください。'],
                     ], 422);
                 }
                 $user = $rt->user;
                 if (!$user) {
                     Log::error('ユーザー情報なし', ['request' => $this->maskSensitive($request->all())]);
                     return response()->json([
-                        'message' => '長期間操作がありませんでした。再度ログインしてください。',
+                        'message_list' => ['長期間操作がありませんでした。再度ログインしてください。'],
                     ], 422);
                 }
 
@@ -156,17 +159,20 @@ class AuthController extends Controller
                 $access = $this->createAccessToken($user, $deviceName);
 
                 return response()->json([
-                    'access_token' => $access['token'],
-                    'access_token_expires_at' => $access['expires_time'],
-                    'refresh_token' => $newRefresh['token'],
-                    'refresh_token_expires_at' => $newRefresh['expires_time'],
-                    'token_type' => 'Bearer',
+                    'message_list' => ['認証コードに成功しました'],
+                    'data' => [
+                        'access_token' => $access['token'],
+                        'access_token_expires_at' => $access['expires_time'],
+                        'refresh_token' => $newRefresh['token'],
+                        'refresh_token_expires_at' => $newRefresh['expires_time'],
+                        'token_type' => 'Bearer',
+                    ],
                 ], 200);
             });
         } catch (\Throwable $e) {
             Log::error("予期せぬエラーが起きました", ['error' => $e->getMessage()]);
             return response()->json([
-                'message' => '一時的なエラーが発生しました。しばらくしてから再度お試しください',
+                'message_list' => ['一時的なエラーが発生しました。しばらくしてから再度お試しください'],
             ], 500);
         }
     }
@@ -196,26 +202,16 @@ class AuthController extends Controller
         } catch (\Throwable $e) {
             Log::error('予期せぬエラーが起きました', ['error' => $e->getMessage()]);
             return response()->json([
-                'message' => '一時的なエラーが発生しました。しばらくしてから再度お試しください',
+                'message_list' => ['一時的なエラーが発生しました。しばらくしてから再度お試しください'],
             ], 500);
         }
 
 
         return response()->json([
-            'ok' => true,
-        ]);
-    }
-
-    /**
-     * ログイン情報を取得するだけのAPI
-     *
-     * @param Request $request
-     * @return void
-     */
-    public function me(Request $request)
-    {
-        return response()->json([
-            'user' => $request->user(),
+            'message_list' => ['ログアウトに成功しました'],
+            'data' => [
+                'ok' => true,
+            ],
         ]);
     }
 
