@@ -31,9 +31,6 @@ class TagsController extends Controller
         try {
             $result = DB::transaction(function () use ($data, $userCd) {
                 $tag = Tags::tagRegist($userCd, $data['tag_name']);
-                if (!$tag) {
-                    throw new RuntimeException('タグの登録に失敗しました。');
-                }
                 return [
                     'message' => 'タグの登録に成功しました',
                     'tag' => $tag,
@@ -81,7 +78,7 @@ class TagsController extends Controller
 
             if (!$result) {
                 return response()->json([
-                    'message' => 'タグの更新に失敗しました',
+                    'message' => '対象のタグが存在しません',
                 ], 404);
             }
             return response()->json([
