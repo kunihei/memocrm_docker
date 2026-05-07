@@ -107,6 +107,6 @@ class Tags extends Model
         ])->where([
             ['user_cd', $userCd],
             ['del_flg', false]
-        ])->get();
+        ])->orderBy('tag_cd', 'desc')->get();
     }
 }

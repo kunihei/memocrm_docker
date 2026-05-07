@@ -71,8 +71,8 @@ class TagsController extends Controller
 
         try {
             $result = DB::transaction(function () use ($data, $userCd) {
-                $updated_flg = Tags::tagUpdate($userCd, $data['tag_cd'], $data['tag_name']);
-                return $updated_flg;
+                $updatedFlg = Tags::tagUpdate($userCd, $data['tag_cd'], $data['tag_name']);
+                return $updatedFlg;
             });
 
             if (!$result) {
@@ -114,8 +114,8 @@ class TagsController extends Controller
 
         try {
             $result = DB::transaction(function () use ($data, $userCd) {
-                $updated_flg = Tags::tagDelete($userCd, $data['tag_cd']);
-                return $updated_flg;
+                $updatedFlg = Tags::tagDelete($userCd, $data['tag_cd']);
+                return $updatedFlg;
             });
 
             if (!$result) {
