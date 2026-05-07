@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
-use RuntimeException;
 
 class TagsController extends Controller
 {
@@ -72,8 +71,8 @@ class TagsController extends Controller
 
         try {
             $result = DB::transaction(function () use ($data, $userCd) {
-                $tag = Tags::tagUpdate($userCd, $data['tag_cd'], $data['tag_name']);
-                return $tag;
+                $updated_flg = Tags::tagUpdate($userCd, $data['tag_cd'], $data['tag_name']);
+                return $updated_flg;
             });
 
             if (!$result) {
@@ -115,13 +114,13 @@ class TagsController extends Controller
 
         try {
             $result = DB::transaction(function () use ($data, $userCd) {
-                $tag = Tags::tagDelete($userCd, $data['tag_cd']);
-                return $tag;
+                $updated_flg = Tags::tagDelete($userCd, $data['tag_cd']);
+                return $updated_flg;
             });
 
             if (!$result) {
                 return response()->json([
-                    'message' => 'タグの削除に失敗しました',
+                    'message' => '対象のタグが存在しません',
                 ], 404);
             }
             return response()->json([

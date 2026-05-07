@@ -37,7 +37,7 @@ class MemosController extends Controller
                 }
                 return [
                     'message' => 'メモの登録に成功しました。',
-                    'memo' => $coMemo
+                    'data' => $coMemo
                 ];
             });
             return response()->json($result);
