@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use App\Data\CustomerData;
 
 class Customers extends Model
 {
@@ -31,20 +33,17 @@ class Customers extends Model
      * 顧客情報の登録
      *
      * @param integer $userCd
-     * @param string $coName
-     * @param string $address
-     * @param string $tantoName
-     * @param string $tantoTel
+     * @param CustomerData $data
      * @return Customers
      */
-    public static function coRegist(int $userCd, array $data): Customers
+    public static function coRegist(int $userCd, CustomerData $data): Customers
     {
         $customer = self::create([
             'user_cd' => $userCd,
-            'co_name' => $data['co_name'],
-            'co_address' => $data['co_address'],
-            'co_tanto_name' => $data['tanto_name'],
-            'co_tanto_tel' => $data['tanto_tel'],
+            'co_name' => $data->coName,
+            'co_address' => $data->coAddress,
+            'co_tanto_name' => $data->tantoName,
+            'co_tanto_tel' => $data->tantoTel,
         ]);
 
         return $customer;
@@ -55,13 +54,10 @@ class Customers extends Model
      *
      * @param integer $userCd
      * @param integer $coCd
-     * @param string $coName
-     * @param string $address
-     * @param string $tantoName
-     * @param string $tantoTel
+     * @param CustomerData $data
      * @return boolean
      */
-    public static function coUpdate(int $userCd, int $coCd, string $coName, string $address, string $tantoName, string $tantoTel): bool
+    public static function coUpdate(int $userCd, int $coCd, CustomerData $data): bool
     {
         $customer = self::where(
             [
@@ -74,10 +70,10 @@ class Customers extends Model
             // 該当データなし
             return false;
         }
-        $customer->co_name = $coName;
-        $customer->co_address = $address;
-        $customer->co_tanto_name = $tantoName;
-        $customer->co_tanto_tel = $tantoTel;
+        $customer->co_name = $data->coName;
+        $customer->co_address = $data->coAddress;
+        $customer->co_tanto_name = $data->tantoName;
+        $customer->co_tanto_tel = $data->tantoTel;
         $customer->update_time = Carbon::now();
         $customer->saveOrFail(); // 失敗なら例外で上位へ
 
@@ -99,7 +95,7 @@ class Customers extends Model
                 ['co_cd', $coCd]
             ]
         )->lockForUpdate()->first();
-        
+
         if (!$customer) {
             return false;
         }
@@ -121,16 +117,28 @@ class Customers extends Model
     {
         $customers = self::select(
             [
-                'co_cd',
-                'co_name',
-                'co_address',
-                'co_tanto_name',
-                'co_tanto_tel',
+                'customers.co_cd',
+                'customers.co_name',
+                'customers.co_address',
+                'customers.co_tanto_name',
+                'customers.co_tanto_tel',
+                DB::raw('COUNT(co_memos.memo_cd) as memo_count'),
             ]
-        )->where(
+        )->join('co_memos', function ($join) {
+            $join->on('customers.co_cd', '=', 'co_memos.co_cd')
+                ->where('co_memos.del_flg', false);
+        })->where(
             [
-                ['user_cd', $userCd],
-                ['del_flg', false]
+                ['customers.user_cd', $userCd],
+                ['customers.del_flg', false]
+            ]
+        )->groupBy(
+            [
+                'customers.co_cd',
+                'customers.co_name',
+                'customers.co_address',
+                'customers.co_tanto_name',
+                'customers.co_tanto_tel',
             ]
         )->orderBy('co_cd', 'desc')->get();
 
