@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use App\Data\CustomerData;
 
 class CustomersController extends Controller
 {
@@ -20,7 +21,7 @@ class CustomersController extends Controller
      */
     public function regist(Request $request)
     {
-        $validated = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'co_name' => ['required', 'string', 'max:100'],
             'co_address' => ['required', 'string', 'max:200'],
             'tanto_name' => ['required', 'string', 'max:100'],
@@ -28,34 +29,30 @@ class CustomersController extends Controller
             'memo_title' => ['string', 'max:100'],
             'memo_content' => ['string', 'max:2000'],
         ]);
-        if ($validated->fails()) {
+        if ($validator->fails()) {
             return response()->json([
                 'message' => 'バリデーションエラー',
-                'errors' => $validated->errors(),
+                'errors' => $validator->errors(),
             ], 422);
         }
 
-        $data = $validated->validated();
+        $data = $validator->validated();
         $userCd = $request->user()->getKey();
+        $customerData = CustomerData::fromArray($data);
+        $memoTitle = $data['memo_title'] ?? '';
+        $memoContent = $data['memo_content'] ?? '';
 
         try {
-            $result = DB::transaction(function () use ($userCd, $data) {
+            $result = DB::transaction(function () use ($userCd, $customerData, $memoTitle, $memoContent) {
                 $customer = Customers::coRegist(
                     $userCd,
-                    $data
+                    $customerData
                 );
-
-                if (!array_key_exists('memo_title', $data)) {
-                    $data['memo_title'] = '';
-                }
-                if (!array_key_exists('memo_content', $data)) {
-                    $data['memo_content'] = '';
-                }
 
                 $coMemo = CoMemos::memoRegist(
                     $customer->co_cd,
-                    $data['memo_title'],
-                    $data['memo_content']
+                    $memoTitle,
+                    $memoContent
                 );
 
                 // 追加に失敗した場合は例外を投げる
@@ -95,7 +92,7 @@ class CustomersController extends Controller
      */
     public function update(Request $request)
     {
-        $valid = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'co_cd' => ['required', 'integer'],
             'co_name' => ['required', 'string', 'max:100'],
             'co_address' => ['required', 'string', 'max:200'],
@@ -103,25 +100,24 @@ class CustomersController extends Controller
             'tanto_tel' => ['required', 'string', 'max:15', 'regex:/^[0-9-+()]*$/'],
         ]);
 
-        if ($valid->fails()) {
+        if ($validator->fails()) {
             return response()->json([
                 'message' => 'バリデーションエラー',
-                'errors' => $valid->errors(),
+                'errors' => $validator->errors(),
             ], 422);
         }
 
-        $data = $valid->validated();
+        $data = $validator->validated();
         $userCd = $request->user()->getKey();
+        $customerData = CustomerData::fromArray($data);
+        $coCd = $data['co_cd'];
 
         try {
-            $result = DB::transaction(function () use ($userCd, $data) {
+            $result = DB::transaction(function () use ($userCd, $coCd, $customerData) {
                 $updated = Customers::coUpdate(
                     $userCd,
-                    $data['co_cd'],
-                    $data['co_name'],
-                    $data['co_address'],
-                    $data['tanto_name'],
-                    $data['tanto_tel']
+                    $coCd,
+                    $customerData,
                 );
 
                 if (!$updated) {
@@ -156,29 +152,28 @@ class CustomersController extends Controller
      */
     public function delete(Request $request)
     {
-        $valid = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'co_cd' => ['required', 'integer'],
         ]);
-        if ($valid->fails()) {
+        if ($validator->fails()) {
             return response()->json([
                 'message' => '不正なアクセス',
             ], 422);
         }
-        $data = $valid->validated();
+        $data = $validator->validated();
         $userCd = $request->user()->getKey();
 
         try {
-            return DB::transaction(function () use ($userCd, $data) {
+            $result = DB::transaction(function () use ($userCd, $data) {
                 $customer = Customers::coDeleete($userCd, $data['co_cd']);
                 if (!$customer) {
-                    return response()->json([
-                        'message' => '顧客情報がありません',
-                    ], 404);
+                    throw new \RuntimeException('顧客情報の削除に失敗しました');
                 }
-                return response()->json([
-                    'message' => '顧客情報の削除に成功しました',
-                ]);
+                return ['message' => '顧客情報の削除に成功しました'];
             });
+            return response()->json([
+                'message' => $result['message'],
+            ]);
         } catch (\Throwable $e) {
             Log::error(
                 'catch: 顧客情報の削除に失敗',
