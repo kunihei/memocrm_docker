@@ -14,13 +14,14 @@ class Tags extends Model
     protected $fillable = [
         'user_cd',
         'tag_name',
+        'create_time',
         'update_time',
         'del_flg',
     ];
 
     protected $casts = [
-        'create_time' => 'datetime',
-        'update_time' => 'datetime',
+        'create_time' => 'datetime:Y-m-d H:i:s',
+        'update_time' => 'datetime:Y-m-d H:i:s',
     ];
 
 
@@ -36,6 +37,7 @@ class Tags extends Model
         $tag = self::create([
             'user_cd' => $userCd,
             'tag_name' => $tagName,
+            'create_time' => now(),
         ]);
 
         return $tag;

@@ -26,7 +26,13 @@ co_cd=1
 &memo_cd=1
 
 ### メモ一覧API
-GET {{baseURL}}/memos/list
+GET {{baseURL}}/memos/list/1
+{{access_token_header}}
+{{headers}}
+{{accept_json}}
+
+### メモ登録API
+POST {{baseURL}}/memos/regist
 {{access_token_header}}
 {{headers}}
 {{accept_json}}

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class CoMemos extends Model
@@ -19,12 +18,13 @@ class CoMemos extends Model
         'title',
         'content',
         'del_flg',
+        'create_time',
         'update_time',
     ];
 
     protected $casts = [
-        'create_time' => 'datetime',
-        'update_time' => 'datetime',
+        'create_time' => 'datetime:Y-m-d H:i:s',
+        'update_time' => 'datetime:Y-m-d H:i:s',
     ];
 
     /**
@@ -44,6 +44,7 @@ class CoMemos extends Model
             'memo_cd' => $nextMemoCd,
             'title' => $title,
             'content' => $content,
+            'create_time' => now(),
         ]);
 
         return $coMemo;
@@ -69,7 +70,7 @@ class CoMemos extends Model
 
         // $coMemo->title = $title;
         // $coMemo->content = $content;
-        // $coMemo->update_time = Carbon::now();
+        // $coMemo->update_time = now();
         // $coMemo->saveOrFail();
         $updated = self::where([
             'memo_cd' => $memoCd,
@@ -78,7 +79,7 @@ class CoMemos extends Model
             ->update([
                 'title' => $title,
                 'content' => $content,
-                'update_time' => Carbon::now()
+                'update_time' => now()
             ]);
         if ($updated === 0) {
             return false;
@@ -108,14 +109,14 @@ class CoMemos extends Model
         }
 
         // $memo->del_flg = true;
-        // $memo->update_time = Carbon::now();
+        // $memo->update_time = now();
         // $memo->saveOrFail();
         $updated = self::where([
             'co_cd' => $coCd,
             'memo_cd' => $memoCd,
         ])->update([
             'del_flg' => true,
-            'update_time' => Carbon::now(),
+            'update_time' => now(),
         ]);
 
         if ($updated === 0) {
