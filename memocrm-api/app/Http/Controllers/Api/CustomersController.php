@@ -165,7 +165,7 @@ class CustomersController extends Controller
 
         try {
             $result = DB::transaction(function () use ($userCd, $data) {
-                $customer = Customers::coDeleete($userCd, $data['co_cd']);
+                $customer = Customers::coDelete($userCd, $data['co_cd']);
                 if (!$customer) {
                     throw new \RuntimeException('顧客情報の削除に失敗しました');
                 }
