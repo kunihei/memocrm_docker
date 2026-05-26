@@ -28,8 +28,8 @@ class RefreshToken extends Model
     ];
 
     protected $casts = [
-        'expires_time' => 'datetime:Y-m-d H:i:s',
-        'revoked_time' => 'datetime:Y-m-d H:i:s',
+        'expires_time' => 'datetime',
+        'revoked_time' => 'datetime',
     ];
 
     public function user(): BelongsTo
