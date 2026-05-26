@@ -31,7 +31,7 @@ class CustomersController extends Controller
         ]);
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'バリデーションエラー',
+                'message_list' => 'バリデーションエラー',
                 'errors' => $validator->errors(),
             ], 422);
         }
@@ -60,11 +60,11 @@ class CustomersController extends Controller
                     throw new \RuntimeException('メモの登録に失敗しました');
                 }
 
-                return ['message' => '顧客情報の登録に成功しました', 'customer' => $customer, 'memo' => $coMemo];
+                return ['message_list' => ['顧客情報の登録に成功しました'], 'customer' => $customer, 'memo' => $coMemo];
             });
 
             return response()->json([
-                'message' => $result['message'],
+                'message_list' => $result['message_list'],
                 'data' => [
                     'customer' => $result['customer'],
                     'memo' => $result['memo'],
@@ -79,7 +79,7 @@ class CustomersController extends Controller
                 ]
             );
             return response()->json([
-                'message' => '顧客情報の登録に失敗しました',
+                'message_list' => '顧客情報の登録に失敗しました',
             ], 500);
         }
     }
@@ -102,7 +102,7 @@ class CustomersController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'バリデーションエラー',
+                'message_list' => ['バリデーションエラー'],
                 'errors' => $validator->errors(),
             ], 422);
         }
@@ -124,11 +124,11 @@ class CustomersController extends Controller
                     throw new \RuntimeException('顧客情報の更新に失敗しました');
                 }
 
-                return ['message' => '顧客情報の更新に成功しました'];
+                return ['message_list' => ['顧客情報の更新に成功しました']];
             });
 
             return response()->json([
-                'message' => $result['message'],
+                'message_list' => $result['message_list'],
             ]);
         } catch (\Throwable $e) {
             Log::error(
@@ -139,7 +139,7 @@ class CustomersController extends Controller
                 ]
             );
             return response()->json([
-                'message' => '顧客情報の更新に失敗しました',
+                'message_list' => ['顧客情報の更新に失敗しました'],
             ], 500);
         }
     }
@@ -157,7 +157,7 @@ class CustomersController extends Controller
         ]);
         if ($validator->fails()) {
             return response()->json([
-                'message' => '不正なアクセス',
+                'message_list' => ['不正なアクセス'],
             ], 422);
         }
         $data = $validator->validated();
@@ -169,10 +169,10 @@ class CustomersController extends Controller
                 if (!$isDeleted) {
                     throw new \RuntimeException('顧客情報の削除に失敗しました');
                 }
-                return ['message' => '顧客情報の削除に成功しました'];
+                return ['message_list' => ['顧客情報の削除に成功しました']];
             });
             return response()->json([
-                'message' => $result['message'],
+                'message_list' => $result['message_list'],
             ]);
         } catch (\Throwable $e) {
             Log::error(
@@ -180,7 +180,7 @@ class CustomersController extends Controller
                 ['error' => $e->getMessage(), 'request' => $data]
             );
             return response()->json([
-                'message' => '顧客情報の削除に失敗しました',
+                'message_list' => ['顧客情報の削除に失敗しました'],
             ], 500);
         }
     }
@@ -199,7 +199,7 @@ class CustomersController extends Controller
             $customers = Customers::getList($userCd);
 
             return response()->json([
-                'message' => $customers->isEmpty() ? '顧客情報はありません' : '正常終了',
+                'message_list' => $customers->isEmpty() ? ['顧客情報はありません'] : ['正常終了'],
                 'data' => $customers->toArray(),
             ]);
         } catch (\Throwable $e) {
@@ -209,7 +209,7 @@ class CustomersController extends Controller
             );
             return response()->json(
                 [
-                    'message' => '顧客情報取得に失敗しました',
+                    'message_list' => ['顧客情報取得に失敗しました'],
                 ],
                 500
             );
