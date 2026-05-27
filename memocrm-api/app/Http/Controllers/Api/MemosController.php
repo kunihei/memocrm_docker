@@ -169,9 +169,9 @@ class MemosController extends Controller
      * @param Request $request
      * @return void
      */
-    public function list(Request $request, int $co_cd)
+    public function list(Request $request)
     {
-        $valid = Validator::make(['co_cd' => $co_cd], [
+        $valid = Validator::make(['co_cd' => $request->route('co_cd')], [
             'co_cd' => ['required', 'integer'],
         ]);
         

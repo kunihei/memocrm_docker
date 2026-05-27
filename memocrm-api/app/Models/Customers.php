@@ -19,7 +19,6 @@ class Customers extends Model
         'co_address',
         'co_tanto_name',
         'co_tanto_tel',
-        'create_time',
         'update_time',
     ];
 
@@ -44,7 +43,6 @@ class Customers extends Model
             'co_address' => $data->coAddress,
             'co_tanto_name' => $data->tantoName,
             'co_tanto_tel' => $data->tantoTel,
-            'create_time' => now(),
         ]);
 
         return $customer;

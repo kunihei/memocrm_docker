@@ -18,7 +18,6 @@ class CoMemos extends Model
         'title',
         'content',
         'del_flg',
-        'create_time',
         'update_time',
     ];
 
@@ -44,7 +43,6 @@ class CoMemos extends Model
             'memo_cd' => $nextMemoCd,
             'title' => $title,
             'content' => $content,
-            'create_time' => now(),
         ]);
 
         return $coMemo;

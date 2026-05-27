@@ -21,13 +21,14 @@ return [
     'exists' => '選択された:attributeは正しくありません。',
 
     'attributes' => [
+        'co_cd' => '会社コード',
         'email' => 'メールアドレス',
         'password' => 'パスワード',
         'device_name' => 'デバイス名',
         'refresh_token' => 'リフレッシュトークン',
         'customer_name' => '顧客名',
         'customer_name_kana' => '顧客名カナ',
-        'tel_no' => '電話番号',
+        'tel' => '電話番号',
         'mail_address' => 'メールアドレス',
         'tag_name' => 'タグ名',
         'memo' => 'メモ',
