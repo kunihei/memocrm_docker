@@ -22,6 +22,10 @@ return [
 
     'attributes' => [
         'co_cd' => '会社コード',
+        'co_name' => '会社名',
+        'co_address' => '会社住所',
+        'tanto_name' => '担当者名',
+        'tanto_tel' => '担当者電話番号',
         'email' => 'メールアドレス',
         'password' => 'パスワード',
         'device_name' => 'デバイス名',
@@ -30,7 +34,10 @@ return [
         'customer_name_kana' => '顧客名カナ',
         'tel' => '電話番号',
         'mail_address' => 'メールアドレス',
+        'tag_cd' => 'タグコード',
         'tag_name' => 'タグ名',
-        'memo' => 'メモ',
+        'memo_cd' => 'メモコード',
+        'memo_title' => 'メモタイトル',
+        'memo_content' => 'メモ内容',
     ],
 ];
