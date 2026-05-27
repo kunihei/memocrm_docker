@@ -177,7 +177,7 @@ class MemosController extends Controller
         
         if ($valid->fails()) {
             return response()->json([
-                'message_list' => '不正なアクセス',
+                'message_list' => ['不正なアクセス'],
             ], 422);
         }
         $data = $valid->validated();
