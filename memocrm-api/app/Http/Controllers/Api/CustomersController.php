@@ -50,6 +50,7 @@ class CustomersController extends Controller
                 );
 
                 $coMemo = CoMemos::memoRegist(
+                    $userCd,
                     $customer->co_cd,
                     $memoTitle,
                     $memoContent

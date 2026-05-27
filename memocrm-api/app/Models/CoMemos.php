@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class CoMemos extends Model
 {
@@ -34,10 +35,20 @@ class CoMemos extends Model
      * @param string $content
      * @return CoMemos
      */
-    public static function memoRegist(int $coCd, string $title, string $content): CoMemos
+    public static function memoRegist(int $userCd, int $coCd, string $title, string $content): CoMemos
     {
+        $exists = DB::table('customers')
+            ->where('user_cd', $userCd)
+            ->where('co_cd', $coCd)
+            ->where('del_flg', false)
+            ->lockForUpdate()
+            ->exists();
+
+        if (!$exists) {
+            throw new \RuntimeException('顧客が存在しません。');
+        }
         $nextMemoCd = (int) self::where('co_cd', $coCd)->lockForUpdate()->max('memo_cd') + 1;
-        
+
         $coMemo = self::create([
             'co_cd' => $coCd,
             'memo_cd' => $nextMemoCd,
@@ -48,11 +59,11 @@ class CoMemos extends Model
         return $coMemo;
     }
 
-        /**
+    /**
      * 顧客に紐づくメモの更新
      *
      * @param integer $memoCd
-     * * @param integer $coCd
+     * @param integer $coCd
      * @param string $title
      * @param string $content
      * @return boolean
@@ -130,7 +141,7 @@ class CoMemos extends Model
      * @param integer $coCd
      * @return Collection
      */
-    public static function memoList(int $coCd): Collection
+    public static function memoList(int $userCd, int $coCd): Collection
     {
         $memos = self::select(
             [
@@ -141,12 +152,12 @@ class CoMemos extends Model
                 'create_time',
                 'update_time'
             ]
-        )->where(
-            [
-                ['co_cd', $coCd],
-                ['del_flg', false]
-            ]
-        )->orderBy('memo_cd', 'desc')->get();
+        )->join('customers', 'customers.co_cd', '=', 'co_memos.co_cd')
+        ->where('customers.user_cd', $userCd)
+        ->where('customers.del_flg', false)
+        ->where('co_memos.co_cd', $coCd)
+        ->where('co_memos.del_flg', false)
+        ->orderBy('memo_cd', 'desc')->get();
 
         return $memos;
     }

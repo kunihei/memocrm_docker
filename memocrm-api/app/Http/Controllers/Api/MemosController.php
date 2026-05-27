@@ -28,10 +28,11 @@ class MemosController extends Controller
         }
 
         $data = $valid->validated();
+        $userCd = $request->user()->getKey();
 
         try {
-            $result = DB::transaction(function () use ($data) {
-                $coMemo = CoMemos::memoRegist((int)$data['co_cd'], $data['memo_title'], $data['memo_content']);
+            $result = DB::transaction(function () use ($data, $userCd) {
+                $coMemo = CoMemos::memoRegist($userCd, (int)$data['co_cd'], $data['memo_title'], $data['memo_content']);
                 if (!$coMemo) {
                     throw new RuntimeException('メモの登録に失敗しました。');
                 }
@@ -181,8 +182,9 @@ class MemosController extends Controller
             ], 422);
         }
         $data = $valid->validated();
+        $userCd = $request->user()->getKey();
         try {
-            $memos = CoMemos::memoList((int)$data['co_cd']);
+            $memos = CoMemos::memoList($userCd, (int)$data['co_cd']);
             return response()->json([
                 'message_list' => ['メモ一覧の取得に成功しました。'],
                 'data' => $memos,
