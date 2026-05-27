@@ -68,8 +68,19 @@ class CoMemos extends Model
      * @param string $content
      * @return boolean
      */
-    public static function memoUpdate(int $memoCd, int $coCd, string $title, string $content): bool
+    public static function memoUpdate(int $userCd, int $memoCd, int $coCd, string $title, string $content): bool
     {
+
+        $exists = DB::table('customers')
+            ->where('user_cd', $userCd)
+            ->where('co_cd', $coCd)
+            ->where('del_flg', false)
+            ->lockForUpdate()
+            ->exists();
+
+        if (!$exists) {
+            throw new \RuntimeException('顧客が存在しません。');
+        }
 
         $coMemo = self::where(['memo_cd' => $memoCd, 'co_cd' => $coCd])->lockForUpdate()->first();
 
@@ -104,8 +115,19 @@ class CoMemos extends Model
      * @param integer $memoCd
      * @return boolean
      */
-    public static function memoDelete(int $coCd, int $memoCd): bool
+    public static function memoDelete(int $userCd, int $coCd, int $memoCd): bool
     {
+        $exists = DB::table('customers')
+            ->where('user_cd', $userCd)
+            ->where('co_cd', $coCd)
+            ->where('del_flg', false)
+            ->lockForUpdate()
+            ->exists();
+
+        if (!$exists) {
+            throw new \RuntimeException('顧客が存在しません。');
+        }
+
         $memo = CoMemos::where(
             [
                 ['co_cd', $coCd],
@@ -153,11 +175,11 @@ class CoMemos extends Model
                 'update_time'
             ]
         )->join('customers', 'customers.co_cd', '=', 'co_memos.co_cd')
-        ->where('customers.user_cd', $userCd)
-        ->where('customers.del_flg', false)
-        ->where('co_memos.co_cd', $coCd)
-        ->where('co_memos.del_flg', false)
-        ->orderBy('memo_cd', 'desc')->get();
+            ->where('customers.user_cd', $userCd)
+            ->where('customers.del_flg', false)
+            ->where('co_memos.co_cd', $coCd)
+            ->where('co_memos.del_flg', false)
+            ->orderBy('memo_cd', 'desc')->get();
 
         return $memos;
     }

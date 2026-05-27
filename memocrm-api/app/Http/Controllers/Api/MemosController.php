@@ -78,11 +78,12 @@ class MemosController extends Controller
                 ], 422);
         }
         $data = $valid->validated();
+        $userCd = $request->user()->getKey();
 
         try {
-            $result = DB::transaction(function () use ($data) {
+            $result = DB::transaction(function () use ($data, $userCd) {
 
-                $coMemo = CoMemos::memoUpdate((int)$data['memo_cd'], (int)$data['co_cd'], $data['memo_title'], $data['memo_content']);
+                $coMemo = CoMemos::memoUpdate($userCd, (int)$data['memo_cd'], (int)$data['co_cd'], $data['memo_title'], $data['memo_content']);
                 if (!$coMemo) {
                     throw new RuntimeException('メモ情報の更新に失敗しました。');
                 }
@@ -126,10 +127,11 @@ class MemosController extends Controller
             ], 422);
         }
         $data = $valid->validated();
+        $userCd = $request->user()->getKey();
 
         try {
-            $result = DB::transaction(function () use ($data) {
-                $coMemo = CoMemos::memoDelete((int)$data['co_cd'], (int)$data['memo_cd']);
+            $result = DB::transaction(function () use ($data, $userCd) {
+                $coMemo = CoMemos::memoDelete($userCd, (int)$data['co_cd'], (int)$data['memo_cd']);
                 if (!$coMemo) {
                     return [
                         'status' => 'error',
