@@ -7,6 +7,7 @@ return [
     'numeric' => ':attributeは数値で入力してください。',
     'boolean' => ':attributeは真偽値で入力してください。',
     'email' => ':attributeは有効なメールアドレスで入力してください。',
+    'regex' => ':attributeの形式が正しくありません。',
     'max' => [
         'string' => ':attributeは:max文字以内で入力してください。',
         'numeric' => ':attributeは:max以下で入力してください。',

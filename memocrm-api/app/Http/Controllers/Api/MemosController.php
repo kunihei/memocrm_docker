@@ -22,7 +22,7 @@ class MemosController extends Controller
 
         if ($valid->fails()) {
             return response()->json([
-                'message' => 'バリデーションエラー',
+                'message_list' => ['バリデーションエラー'],
                 'errors' => $valid->errors(),
             ], 422);
         }
@@ -36,7 +36,7 @@ class MemosController extends Controller
                     throw new RuntimeException('メモの登録に失敗しました。');
                 }
                 return [
-                    'message' => 'メモの登録に成功しました。',
+                    'message_list' => ['メモの登録に成功しました。'],
                     'data' => $coMemo
                 ];
             });
@@ -50,7 +50,7 @@ class MemosController extends Controller
                 ]
             );
             return response()->json([
-                'message' => 'メモの登録に失敗しました。'
+                'message_list' => ['メモの登録に失敗しました。']
             ], 500);
         }
     }
@@ -72,7 +72,7 @@ class MemosController extends Controller
 
         if ($valid->fails()) {
             return response()->json([
-                'message' => 'バリデーションエラー', 
+                'message_list' => ['バリデーションエラー'], 
                 'errors' => $valid->errors()
                 ], 422);
         }
@@ -85,7 +85,7 @@ class MemosController extends Controller
                 if (!$coMemo) {
                     throw new RuntimeException('メモ情報の更新に失敗しました。');
                 }
-                return ['message' => 'メモ情報の更新に成功しました。'];
+                return ['message_list' => ['メモ情報の更新に成功しました。']];
             });
 
             return response()->json($result);
@@ -101,7 +101,7 @@ class MemosController extends Controller
                     ],
                 ]);
             return response()->json([
-                'message' => 'メモ情報の更新に失敗しました'
+                'message_list' => ['メモ情報の更新に失敗しました。']
                 ], 500);
         }
 
@@ -121,7 +121,7 @@ class MemosController extends Controller
         ]);
         if ($valid->fails()) {
             return response()->json([
-                'message' => '不正なアクセス',
+                'message_list' => ['不正なアクセス'],
             ], 422);
         }
         $data = $valid->validated();
@@ -132,22 +132,22 @@ class MemosController extends Controller
                 if (!$coMemo) {
                     return [
                         'status' => 'error',
-                        'message' => 'メモの削除に失敗しました。'
+                        'message_list' => ['メモの削除に失敗しました。']
                         ];
                 }
                 return [
                     'status' => 'success',
-                    'message' => 'メモの削除に成功しました。'
+                    'message_list' => ['メモの削除に成功しました。']
                     ];
             });
 
             if ($result['status'] === 'error') {
                 return response()->json([
-                    'message' => $result['message'],
+                    'message_list' => $result['message_list'],
                 ], 422);
             }
             return response()->json([
-                'message' => $result['message'],
+                'message_list' => $result['message_list'],
             ]);
         } catch (\Throwable $e) {
             Log::error('catch: メモの削除に失敗しました', [
@@ -158,7 +158,7 @@ class MemosController extends Controller
                 ],
             ]);
             return response()->json([
-                'message' => 'メモの削除に失敗しました'
+                'message_list' => ['メモの削除に失敗しました。']
                 ], 500);
         }
     }
@@ -177,14 +177,14 @@ class MemosController extends Controller
         
         if ($valid->fails()) {
             return response()->json([
-                'message' => '不正なアクセス',
+                'message_list' => '不正なアクセス',
             ], 422);
         }
         $data = $valid->validated();
         try {
             $memos = CoMemos::memoList((int)$data['co_cd']);
             return response()->json([
-                'message' => 'メモ一覧の取得に成功しました。',
+                'message_list' => ['メモ一覧の取得に成功しました。'],
                 'data' => $memos,
             ]);
         } catch (\Throwable $e) {
@@ -197,7 +197,7 @@ class MemosController extends Controller
             );
 
             return response()->json([
-                'message' => 'メモ一覧の取得に失敗しました。'
+                'message_list' => ['メモ一覧の取得に失敗しました。']
             ], 500);
         }
     }

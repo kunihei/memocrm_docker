@@ -31,7 +31,7 @@ class CustomersController extends Controller
         ]);
         if ($validator->fails()) {
             return response()->json([
-                'message_list' => 'バリデーションエラー',
+                'message_list' => ['バリデーションエラー'],
                 'errors' => $validator->errors(),
             ], 422);
         }
@@ -79,7 +79,7 @@ class CustomersController extends Controller
                 ]
             );
             return response()->json([
-                'message_list' => '顧客情報の登録に失敗しました',
+                'message_list' => ['顧客情報の登録に失敗しました'],
             ], 500);
         }
     }
