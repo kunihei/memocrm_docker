@@ -50,22 +50,6 @@
 
 ---
 
-## Timezone policy
-
-このアプリケーションでは日時保存方針を JST 固定とする。
-
-- Laravel: `APP_TIMEZONE=Asia/Tokyo`
-- PHP: `date.timezone=Asia/Tokyo`
-- MySQL: `--default-time-zone=+09:00`
-
-`now()` / `Carbon::now()` と DB の `CURRENT_TIMESTAMP` を併用しているため、
-アプリケーションとDBのタイムゾーン設定を必ず一致させること。
-
-既存DBを UTC 前提で運用していた環境から移行する場合は、
-保存済み日時の変換要否を確認してから切り替える。
-
----
-
 ## 技術スタック
 
 ### フロントエンド（Flutter）

@@ -30,8 +30,6 @@ return [
         'password' => 'パスワード',
         'device_name' => 'デバイス名',
         'refresh_token' => 'リフレッシュトークン',
-        'customer_name' => '顧客名',
-        'customer_name_kana' => '顧客名カナ',
         'tel' => '電話番号',
         'mail_address' => 'メールアドレス',
         'tag_cd' => 'タグコード',

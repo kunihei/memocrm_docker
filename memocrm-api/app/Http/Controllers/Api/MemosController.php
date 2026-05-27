@@ -16,8 +16,8 @@ class MemosController extends Controller
     public function regist(Request $request) {
         $valid = Validator::make($request->all(),[
             'co_cd' => ['required', 'integer'],
-            'title' => ['required', 'string', 'max:100'],
-            'content' => ['required', 'string', 'max:2000'],
+            'memo_title' => ['required', 'string', 'max:100'],
+            'memo_content' => ['required', 'string', 'max:2000'],
         ]);
 
         if ($valid->fails()) {
@@ -31,7 +31,7 @@ class MemosController extends Controller
 
         try {
             $result = DB::transaction(function () use ($data) {
-                $coMemo = CoMemos::memoRegist((int)$data['co_cd'], $data['title'], $data['content']);
+                $coMemo = CoMemos::memoRegist((int)$data['co_cd'], $data['memo_title'], $data['memo_content']);
                 if (!$coMemo) {
                     throw new RuntimeException('メモの登録に失敗しました。');
                 }
@@ -66,8 +66,8 @@ class MemosController extends Controller
         $valid = Validator::make($request->all(),[
             'memo_cd' => ['required', 'integer'],
             'co_cd' => ['required', 'integer'],
-            'title' => ['required', 'string', 'max:100'],
-            'content' => ['required', 'string', 'max:2000'],
+            'memo_title' => ['required', 'string', 'max:100'],
+            'memo_content' => ['required', 'string', 'max:2000'],
         ]);
 
         if ($valid->fails()) {
@@ -81,7 +81,7 @@ class MemosController extends Controller
         try {
             $result = DB::transaction(function () use ($data) {
 
-                $coMemo = CoMemos::memoUpdate((int)$data['memo_cd'], (int)$data['co_cd'], $data['title'], $data['content']);
+                $coMemo = CoMemos::memoUpdate((int)$data['memo_cd'], (int)$data['co_cd'], $data['memo_title'], $data['memo_content']);
                 if (!$coMemo) {
                     throw new RuntimeException('メモ情報の更新に失敗しました。');
                 }
