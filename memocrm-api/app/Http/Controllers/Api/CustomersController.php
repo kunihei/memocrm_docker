@@ -174,10 +174,17 @@ class CustomersController extends Controller
             $result = DB::transaction(function () use ($userCd, $data) {
                 $isDeleted = Customers::coDelete($userCd, $data['co_cd']);
                 if (!$isDeleted) {
-                    throw new \RuntimeException('顧客情報の削除に失敗しました');
+                    return null;
                 }
                 return ['message_list' => ['顧客情報の削除に成功しました']];
             });
+
+            if ($result === null) {
+                return response()->json([
+                    'message_list' => ['対象の顧客が存在しません'],
+                ], 404);
+            }
+
             return response()->json([
                 'message_list' => $result['message_list'],
             ]);
