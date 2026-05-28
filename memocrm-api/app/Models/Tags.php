@@ -19,8 +19,8 @@ class Tags extends Model
     ];
 
     protected $casts = [
-        'create_time' => 'datetime',
-        'update_time' => 'datetime',
+        'create_time' => 'datetime:Y-m-d H:i:s',
+        'update_time' => 'datetime:Y-m-d H:i:s',
     ];
 
 

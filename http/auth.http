@@ -1,6 +1,7 @@
 ### ベースの設定
 @baseURL = http://localhost:8081/api
 @headers = Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+@accept_json = Accept: application/json
 @access_token = <your_access_token_here>
 @refresh_token = <your_refresh_token_here>
 @access_token_header = Authorization: Bearer {{access_token}}
@@ -9,6 +10,7 @@
 ### ログイン用API
 POST {{baseURL}}/login
 {{headers}}
+{{accept_json}}
 
 email=admin@example.com
 &password=password
@@ -17,6 +19,7 @@ email=admin@example.com
 ### リフレッシュトークン更新API
 POST {{baseURL}}/refresh
 {{headers}}
+{{accept_json}}
 
 refresh_token={{refresh_token}}
 &device_name=iphone3
@@ -25,6 +28,7 @@ refresh_token={{refresh_token}}
 POST {{baseURL}}/logout
 {{access_token_header}}
 {{headers}}
+{{accept_json}}
 
 email=admin@example.com
 &password=password
@@ -35,3 +39,4 @@ email=admin@example.com
 GET {{baseURL}}/me
 {{access_token_header}}
 {{headers}}
+{{accept_json}}

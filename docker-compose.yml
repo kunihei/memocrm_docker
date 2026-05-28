@@ -38,6 +38,8 @@ services:
       MYSQL_USER: app
       MYSQL_PASSWORD: appass
       MYSQL_ROOT_PASSWORD: rootpass
+      TZ: Asia/Tokyo
+    command: --default-time-zone=+09:00
     ports:
       - "127.0.0.1:3307:3306"
     volumes:

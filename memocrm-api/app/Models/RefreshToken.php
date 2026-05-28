@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
-use Carbon\Carbon;
 
 class RefreshToken extends Model
 {
@@ -52,7 +51,7 @@ class RefreshToken extends Model
         $refreshPlain = Str::random(64);
         $refreshHash = hash('sha256', $refreshPlain);
 
-        $refreshExpiresTime = Carbon::now()->addDays(self::REFRESH_TOKEN_DAYS);
+        $refreshExpiresTime = now()->addDays(self::REFRESH_TOKEN_DAYS);
 
         // リフレッシュトークンをDBに保存
         $result = self::create([

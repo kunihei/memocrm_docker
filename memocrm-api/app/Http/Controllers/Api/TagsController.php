@@ -19,7 +19,7 @@ class TagsController extends Controller
 
         if ($valid->fails()) {
             return response()->json([
-                'message' => 'バリデーションエラー',
+                'message_list' => ['バリデーションエラー'],
                 'errors' => $valid->errors(),
             ], 422);
         }
@@ -31,12 +31,12 @@ class TagsController extends Controller
             $result = DB::transaction(function () use ($data, $userCd) {
                 $tag = Tags::tagRegist($userCd, $data['tag_name']);
                 return [
-                    'message' => 'タグの登録に成功しました',
+                    'message_list' => ['タグの登録に成功しました'],
                     'tag' => $tag,
                 ];
             });
             return response()->json([
-                'message' => $result['message'],
+                'message_list' => $result['message_list'],
                 'data' => $result['tag'],
             ]);
         } catch (\Throwable $e) {
@@ -48,7 +48,7 @@ class TagsController extends Controller
                 ]
             );
             return response()->json([
-                'message' => 'タグの登録に失敗しました。'
+                'message_list' => ['タグの登録に失敗しました。']
             ], 500);
         }
     }
@@ -61,7 +61,7 @@ class TagsController extends Controller
 
         if ($valid->fails()) {
             return response()->json([
-                'message' => 'バリデーションエラー',
+                'message_list' => ['バリデーションエラー'],
                 'errors' => $valid->errors(),
             ], 422);
         }
@@ -77,11 +77,11 @@ class TagsController extends Controller
 
             if (!$result) {
                 return response()->json([
-                    'message' => '対象のタグが存在しません',
+                    'message_list' => ['対象のタグが存在しません'],
                 ], 404);
             }
             return response()->json([
-                'message' => 'タグの更新に成功しました',
+                'message_list' => ['タグの更新に成功しました'],
             ]);
         } catch (\Throwable $e) {
             Log::error(
@@ -92,7 +92,7 @@ class TagsController extends Controller
                 ]
             );
             return response()->json([
-                'message' => 'タグの更新に失敗しました'
+                'message_list' => ['タグの更新に失敗しました']
             ], 500);
         }
     }
@@ -104,7 +104,7 @@ class TagsController extends Controller
 
         if ($valid->fails()) {
             return response()->json([
-                'message' => 'バリデーションエラー',
+                'message_list' => ['バリデーションエラー'],
                 'errors' => $valid->errors(),
             ], 422);
         }
@@ -120,11 +120,11 @@ class TagsController extends Controller
 
             if (!$result) {
                 return response()->json([
-                    'message' => '対象のタグが存在しません',
+                    'message_list' => ['対象のタグが存在しません'],
                 ], 404);
             }
             return response()->json([
-                'message' => 'タグの削除に成功しました',
+                'message_list' => ['タグの削除に成功しました'],
             ]);
         } catch (\Throwable $e) {
             Log::error(
@@ -135,7 +135,7 @@ class TagsController extends Controller
                 ]
             );
             return response()->json([
-                'message' => 'タグの削除に失敗しました'
+                'message_list' => ['タグの削除に失敗しました']
             ], 500);
         }
     }
@@ -145,7 +145,7 @@ class TagsController extends Controller
         try {
             $tags = Tags::tagList($userCd);
             return response()->json([
-                'message' => 'タグ一覧の取得に成功しました。',
+                'message_list' => ['タグ一覧の取得に成功しました。'],
                 'data' => $tags,
             ]);
         } catch (\Throwable $e) {
@@ -157,7 +157,7 @@ class TagsController extends Controller
                 ]
             );
             return response()->json([
-                'message' => 'タグ一覧の取得に失敗しました。',
+                'message_list' => ['タグ一覧の取得に失敗しました。'],
             ], 500);
         }
     }

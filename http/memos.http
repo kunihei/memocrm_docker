@@ -1,5 +1,6 @@
 @baseURL = http://localhost:8081/api
 @headers = Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+@accept_json = Accept: application/json
 @access_token = <your_access_token_here>
 @refresh_token = <your_refresh_token_here>
 @access_token_header = Authorization: Bearer {{access_token}}
@@ -8,6 +9,7 @@
 POST {{baseURL}}/memos/update
 {{access_token_header}}
 {{headers}}
+{{accept_json}}
 
 co_cd=9
 &memo_cd=1
@@ -18,13 +20,21 @@ co_cd=9
 POST {{baseURL}}/memos/delete
 {{access_token_header}}
 {{headers}}
+{{accept_json}}
 
 co_cd=1
 &memo_cd=1
 
 ### メモ一覧API
-GET {{baseURL}}/memos/list
+GET {{baseURL}}/memos/list/1
 {{access_token_header}}
 {{headers}}
+{{accept_json}}
+
+### メモ登録API
+POST {{baseURL}}/memos/regist
+{{access_token_header}}
+{{headers}}
+{{accept_json}}
 
 co_cd=2

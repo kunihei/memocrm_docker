@@ -1,5 +1,6 @@
 @baseURL = http://localhost:8081/api
 @headers = Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+@accept_json = Accept: application/json
 @access_token = <your_access_token_here>
 @refresh_token = <your_refresh_token_here>
 @access_token_header = Authorization: Bearer {{access_token}}
@@ -8,6 +9,7 @@
 POST {{baseURL}}/customers/regist
 {{access_token_header}}
 {{headers}}
+{{accept_json}}
 
 co_name=テスト株式会社
 &co_address=東京都渋谷区2-3-4
@@ -20,6 +22,7 @@ co_name=テスト株式会社
 POST {{baseURL}}/customers/update
 {{access_token_header}}
 {{headers}}
+{{accept_json}}
 
 co_cd=9
 &co_name=テスト株式会社12
@@ -33,6 +36,7 @@ co_cd=9
 POST {{baseURL}}/customers/delete
 {{access_token_header}}
 {{headers}}
+{{accept_json}}
 
 co_cd=1
 
@@ -40,3 +44,4 @@ co_cd=1
 GET {{baseURL}}/customers/list
 {{access_token_header}}
 {{headers}}
+{{accept_json}}

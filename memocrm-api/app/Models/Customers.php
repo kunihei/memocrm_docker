@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Data\CustomerData;
 
@@ -24,8 +23,8 @@ class Customers extends Model
     ];
 
     protected $casts = [
-        'create_time' => 'datetime',
-        'update_time' => 'datetime',
+        'create_time' => 'datetime:Y-m-d H:i:s',
+        'update_time' => 'datetime:Y-m-d H:i:s',
     ];
 
 
@@ -74,7 +73,7 @@ class Customers extends Model
         $customer->co_address = $data->coAddress;
         $customer->co_tanto_name = $data->tantoName;
         $customer->co_tanto_tel = $data->tantoTel;
-        $customer->update_time = Carbon::now();
+        $customer->update_time = now();
         $customer->saveOrFail(); // 失敗なら例外で上位へ
 
         return true;
@@ -87,12 +86,13 @@ class Customers extends Model
      * @param integer $coCd
      * @return boolean
      */
-    public static function coDeleete(int $userCd, int $coCd): bool
+    public static function coDelete(int $userCd, int $coCd): bool
     {
         $customer = self::where(
             [
                 ['user_cd', $userCd],
-                ['co_cd', $coCd]
+                ['co_cd', $coCd],
+                ['del_flg', false],
             ]
         )->lockForUpdate()->first();
 
@@ -101,7 +101,7 @@ class Customers extends Model
         }
 
         $customer->del_flg = true;
-        $customer->update_time = Carbon::now();
+        $customer->update_time = now();
         $customer->saveOrFail();
 
         return true;
@@ -119,12 +119,10 @@ class Customers extends Model
             [
                 'customers.co_cd',
                 'customers.co_name',
-                'customers.co_address',
-                'customers.co_tanto_name',
-                'customers.co_tanto_tel',
+                DB::raw('MAX(COALESCE(co_memos.update_time, co_memos.create_time)) as last_memo_time'),
                 DB::raw('COUNT(co_memos.memo_cd) as memo_count'),
             ]
-        )->join('co_memos', function ($join) {
+        )->leftJoin('co_memos', function ($join) {
             $join->on('customers.co_cd', '=', 'co_memos.co_cd')
                 ->where('co_memos.del_flg', false);
         })->where(
@@ -136,11 +134,8 @@ class Customers extends Model
             [
                 'customers.co_cd',
                 'customers.co_name',
-                'customers.co_address',
-                'customers.co_tanto_name',
-                'customers.co_tanto_tel',
             ]
-        )->orderBy('co_cd', 'desc')->get();
+        )->orderBy('customers.co_cd', 'desc')->get();
 
         return $customers;
     }
