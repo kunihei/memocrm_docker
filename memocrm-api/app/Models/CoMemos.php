@@ -83,10 +83,19 @@ class CoMemos extends Model
             return false;
         }
 
-        $coMemo->title = $title;
-        $coMemo->content = $content;
-        $coMemo->update_time = now();
-        $coMemo->saveOrFail();
+        $updated = self::where([
+            ['co_cd', $coCd],
+            ['memo_cd', $memoCd],
+            ['del_flg', false],
+        ])->update([
+            'title' => $title,
+            'content' => $content,
+            'update_time' => now(),
+        ]);
+
+        if ($updated === 0) {
+            return false;
+        }
 
         return true;
     }
@@ -118,9 +127,18 @@ class CoMemos extends Model
             return false;
         }
 
-        $coMemo->del_flg = true;
-        $coMemo->update_time = now();
-        $coMemo->saveOrFail();
+        $updated = self::where([
+            ['co_cd', $coCd],
+            ['memo_cd', $memoCd],
+            ['del_flg', false],
+        ])->update([
+            'del_flg' => true,
+            'update_time' => now(),
+        ]);
+
+        if ($updated === 0) {
+            return false;
+        }
 
         return true;
     }

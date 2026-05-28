@@ -91,7 +91,8 @@ class Customers extends Model
         $customer = self::where(
             [
                 ['user_cd', $userCd],
-                ['co_cd', $coCd]
+                ['co_cd', $coCd],
+                ['del_flg', false],
             ]
         )->lockForUpdate()->first();
 

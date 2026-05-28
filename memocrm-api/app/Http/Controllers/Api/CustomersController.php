@@ -122,13 +122,17 @@ class CustomersController extends Controller
                 );
 
                 if (!$updated) {
-                    return response()->json([
-                        'message_list' => ['対象の顧客が存在しません'],
-                    ], 404);
+                    return null;
                 }
 
                 return ['message_list' => ['顧客情報の更新に成功しました']];
             });
+
+            if ($result === null) {
+                return response()->json([
+                    'message_list' => ['対象の顧客が存在しません'],
+                ], 404);
+            }
 
             return response()->json([
                 'message_list' => $result['message_list'],
