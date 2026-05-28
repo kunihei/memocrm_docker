@@ -122,7 +122,9 @@ class CustomersController extends Controller
                 );
 
                 if (!$updated) {
-                    throw new \RuntimeException('顧客情報の更新に失敗しました');
+                    return response()->json([
+                        'message_list' => ['対象の顧客が存在しません'],
+                    ], 404);
                 }
 
                 return ['message_list' => ['顧客情報の更新に成功しました']];

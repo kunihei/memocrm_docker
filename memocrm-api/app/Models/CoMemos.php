@@ -30,6 +30,7 @@ class CoMemos extends Model
     /**
      * 顧客に紐づくメモを登録
      *
+     * @param integer $userCd
      * @param integer $coCd
      * @param string $title
      * @param string $content
@@ -37,14 +38,8 @@ class CoMemos extends Model
      */
     public static function memoRegist(int $userCd, int $coCd, string $title, string $content): CoMemos
     {
-        $exists = DB::table('customers')
-            ->where('user_cd', $userCd)
-            ->where('co_cd', $coCd)
-            ->where('del_flg', false)
-            ->lockForUpdate()
-            ->exists();
 
-        if (!$exists) {
+        if (!self::customerExists($userCd, $coCd)) {
             throw new \RuntimeException('顧客が存在しません。');
         }
         $nextMemoCd = (int) self::where('co_cd', $coCd)->lockForUpdate()->max('memo_cd') + 1;
@@ -62,6 +57,7 @@ class CoMemos extends Model
     /**
      * 顧客に紐づくメモの更新
      *
+     * @param integer $userCd
      * @param integer $memoCd
      * @param integer $coCd
      * @param string $title
@@ -71,39 +67,26 @@ class CoMemos extends Model
     public static function memoUpdate(int $userCd, int $memoCd, int $coCd, string $title, string $content): bool
     {
 
-        $exists = DB::table('customers')
-            ->where('user_cd', $userCd)
-            ->where('co_cd', $coCd)
-            ->where('del_flg', false)
-            ->lockForUpdate()
-            ->exists();
-
-        if (!$exists) {
+        if (!self::customerExists($userCd, $coCd)) {
             throw new \RuntimeException('顧客が存在しません。');
         }
 
-        $coMemo = self::where(['memo_cd' => $memoCd, 'co_cd' => $coCd])->lockForUpdate()->first();
+        $coMemo = self::where(
+            [
+                ['memo_cd', $memoCd],
+                ['co_cd', $coCd],
+                ['del_flg', false],
+            ]
+        )->lockForUpdate()->first();
 
         if (!$coMemo) {
             return false;
         }
 
-        // $coMemo->title = $title;
-        // $coMemo->content = $content;
-        // $coMemo->update_time = now();
-        // $coMemo->saveOrFail();
-        $updated = self::where([
-            'memo_cd' => $memoCd,
-            'co_cd' => $coCd
-        ])
-            ->update([
-                'title' => $title,
-                'content' => $content,
-                'update_time' => now()
-            ]);
-        if ($updated === 0) {
-            return false;
-        }
+        $coMemo->title = $title;
+        $coMemo->content = $content;
+        $coMemo->update_time = now();
+        $coMemo->saveOrFail();
 
         return true;
     }
@@ -111,48 +94,33 @@ class CoMemos extends Model
     /**
      * メモの削除
      *
+     * @param integer $userCd
      * @param integer $coCd
      * @param integer $memoCd
      * @return boolean
      */
     public static function memoDelete(int $userCd, int $coCd, int $memoCd): bool
     {
-        $exists = DB::table('customers')
-            ->where('user_cd', $userCd)
-            ->where('co_cd', $coCd)
-            ->where('del_flg', false)
-            ->lockForUpdate()
-            ->exists();
 
-        if (!$exists) {
+        if (!self::customerExists($userCd, $coCd)) {
             throw new \RuntimeException('顧客が存在しません。');
         }
 
-        $memo = CoMemos::where(
+        $coMemo = CoMemos::where(
             [
                 ['co_cd', $coCd],
                 ['memo_cd', $memoCd],
+                ['del_flg', false],
             ]
         )->lockForUpdate()->first();
 
-        if (!$memo) {
+        if (!$coMemo) {
             return false;
         }
 
-        // $memo->del_flg = true;
-        // $memo->update_time = now();
-        // $memo->saveOrFail();
-        $updated = self::where([
-            'co_cd' => $coCd,
-            'memo_cd' => $memoCd,
-        ])->update([
-            'del_flg' => true,
-            'update_time' => now(),
-        ]);
-
-        if ($updated === 0) {
-            return false;
-        }
+        $coMemo->del_flg = true;
+        $coMemo->update_time = now();
+        $coMemo->saveOrFail();
 
         return true;
     }
@@ -160,6 +128,7 @@ class CoMemos extends Model
     /**
      * メモの一覧取得
      *
+     * @param integer $userCd
      * @param integer $coCd
      * @return Collection
      */
@@ -167,20 +136,30 @@ class CoMemos extends Model
     {
         $memos = self::select(
             [
-                'co_cd',
-                'memo_cd',
-                'title',
-                'content',
-                'create_time',
-                'update_time'
+                'co_memos.co_cd',
+                'co_memos.memo_cd',
+                'co_memos.title',
+                'co_memos.content',
+                'co_memos.create_time',
+                'co_memos.update_time'
             ]
         )->join('customers', 'customers.co_cd', '=', 'co_memos.co_cd')
             ->where('customers.user_cd', $userCd)
             ->where('customers.del_flg', false)
             ->where('co_memos.co_cd', $coCd)
             ->where('co_memos.del_flg', false)
-            ->orderBy('memo_cd', 'desc')->get();
+            ->orderBy('co_memos.memo_cd', 'desc')->get();
 
         return $memos;
+    }
+
+    private static function customerExists(int $userCd, int $coCd): bool
+    {
+        return DB::table('customers')
+            ->where('user_cd', $userCd)
+            ->where('co_cd', $coCd)
+            ->where('del_flg', false)
+            ->lockForUpdate()
+            ->exists();
     }
 }
