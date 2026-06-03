@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Data\CustomerData;
+use App\Models\MemoTags;
 
 class Customers extends Model
 {

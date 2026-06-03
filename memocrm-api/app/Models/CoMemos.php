@@ -158,8 +158,8 @@ class CoMemos extends Model
                 'co_memos.memo_cd',
                 'co_memos.title',
                 'co_memos.content',
-                'co_memos.create_time',
-                'co_memos.update_time'
+                DB::raw('COALESCE(co_memos.update_time, co_memos.create_time) as memo_time'),
+                'customers.co_tanto_name',
             ]
         )->join('customers', 'customers.co_cd', '=', 'co_memos.co_cd')
             ->where('customers.user_cd', $userCd)
@@ -168,9 +168,35 @@ class CoMemos extends Model
             ->where('co_memos.del_flg', false)
             ->orderBy('co_memos.memo_cd', 'desc')->get();
 
+        if ($memos->isEmpty()) {
+            return $memos;
+        }
+
+        $tagsByMemoCd = MemoTags::listByMemoCds(
+            $userCd,
+            $coCd,
+            $memos->pluck('memo_cd')
+        );
+
+        foreach ($memos as $memo) {
+            $memo->tags = $tagsByMemoCd->get($memo->memo_cd, collect())
+                ->map(fn($tag) => [
+                    'tag_cd' => $tag->tag_cd,
+                    'tag_name' => $tag->tag_name,
+                ])
+                ->values();
+        }
+
         return $memos;
     }
 
+    /**
+     * 顧客が存在するか確認しレコードをロックする
+     *
+     * @param integer $userCd
+     * @param integer $coCd
+     * @return boolean
+     */
     private static function customerExists(int $userCd, int $coCd): bool
     {
         return DB::table('customers')

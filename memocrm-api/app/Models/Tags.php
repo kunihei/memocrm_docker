@@ -109,4 +109,18 @@ class Tags extends Model
             ['del_flg', false]
         ])->orderBy('tag_cd', 'desc')->get();
     }
+
+    /**
+     * アクティブなタグの個数を返す
+     *
+     * @param integer $userCd
+     * @param array $tagCds
+     * @return integer
+     */
+    public static function countActiveByUserAndTagCds(int $userCd, array $tagCds): int {
+        return self::where([
+            ['user_cd', $userCd],
+            ['del_flg', false],
+        ])->whereIn('tag_cd', $tagCds)->count();
+    }
 }
