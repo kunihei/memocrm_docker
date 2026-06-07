@@ -26,9 +26,9 @@ class MemoTags extends Model
      * @param integer $coCd
      * @param integer $memoCd
      * @param integer $tagCd
-     * @return void
+     * @return Collection
      */
-    public static function regist(int $coCd, int $memoCd, int $tagCd)
+    public static function regist(int $coCd, int $memoCd, int $tagCd): Collection
     {
         return self::firstOrCreate([
             'co_cd' => $coCd,

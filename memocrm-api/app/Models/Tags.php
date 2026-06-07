@@ -62,7 +62,7 @@ class Tags extends Model
         if (!$tag) {
             return false;
         }
-        
+
         $tag->tag_name = $tagName;
         $tag->update_time = now();
         $tag->saveOrFail();
@@ -117,7 +117,8 @@ class Tags extends Model
      * @param array $tagCds
      * @return integer
      */
-    public static function countActiveByUserAndTagCds(int $userCd, array $tagCds): int {
+    public static function countActiveByUserAndTagCds(int $userCd, array $tagCds): int
+    {
         return self::where([
             ['user_cd', $userCd],
             ['del_flg', false],
