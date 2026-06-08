@@ -42,7 +42,7 @@ class MemosController extends Controller
                     'data' => $coMemo
                 ];
             });
-            return response()->json($result);
+            return response()->json($result, 201);
         } catch (\Throwable $e) {
             Log::error(
                 'catch: メモの登録に失敗しました。',
