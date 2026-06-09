@@ -5,38 +5,36 @@
 @refresh_token = <your_refresh_token_here>
 @access_token_header = Authorization: Bearer {{access_token}}
 
-### メモ更新API
-POST {{baseURL}}/memos/update
+### タグ更新API
+POST {{baseURL}}/tags/update
+{{access_token_header}}
+{{headers}}
+{{accept_json}}
+
+co_cd=1
+&memo_cd=2
+&title=初回面談メモ更新
+&content=初回面談では、今後の取引について前向きな話ができました。内容を更新しました。
+
+### タグ削除API
+POST {{baseURL}}/tags/delete
 {{access_token_header}}
 {{headers}}
 {{accept_json}}
 
 co_cd=1
 &memo_cd=1
-&memo_title=初回面談メモ更新2
-&memo_content=初回面談では、今後の取引について前向きな話ができました。内容を更新しました。
 
-### メモ削除API
-POST {{baseURL}}/memos/delete
+### タグ一覧API
+GET {{baseURL}}/tags/list/1
 {{access_token_header}}
 {{headers}}
 {{accept_json}}
 
-co_cd=1
-&memo_cd=1
-
-### メモ一覧API
-GET {{baseURL}}/memos/list/1
+### タグ登録API
+POST {{baseURL}}/tags/regist
 {{access_token_header}}
 {{headers}}
 {{accept_json}}
 
-### メモ登録API
-POST {{baseURL}}/memos/regist
-{{access_token_header}}
-{{headers}}
-{{accept_json}}
-
-co_cd=1
-&memo_title=8回目面談メモ
-&memo_content=8回目の面談では、今後の取引について前向きな話ができました。
+tag_name=話を聞いていくれる

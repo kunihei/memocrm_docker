@@ -38,7 +38,7 @@ class TagsController extends Controller
             return response()->json([
                 'message_list' => $result['message_list'],
                 'data' => $result['tag'],
-            ]);
+            ], 201);
         } catch (\Throwable $e) {
             Log::error(
                 'catch: タグの登録に失敗しました。',
